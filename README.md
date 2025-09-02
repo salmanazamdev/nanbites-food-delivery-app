@@ -211,7 +211,7 @@ src/
 
 ### Real-time Features
 ```typescript
-/ Supabase real-time subscriptions
+// Supabase real-time subscriptions
 // Live order tracking
 // Push notifications
 ```
