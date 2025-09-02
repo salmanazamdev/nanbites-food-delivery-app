@@ -279,7 +279,7 @@ cd android && ./gradlew assembleRelease
 
 **Salman Azam**
 - GitHub: [@salmanazamdev](https://github.com/salmanazamdev)
-- [LinkedIn](linkedin.com/in/salmanazamdev?)
+- [LinkedIn](https://www.linkedin.com/in/salmanazamdev)
 
 ## 🙏 Acknowledgments
 
