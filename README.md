@@ -1,97 +1,312 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🍕 NanBites Food Delivery App
 
-# Getting Started
+A comprehensive food delivery mobile application built with React Native CLI, featuring modern UI/UX, real-time tracking, secure payments, and seamless user experience.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 📱 Features
 
-## Step 1: Start Metro
+### 🔐 Authentication & Onboarding
+- Google OAuth integration
+- Email/Password authentication
+- Multi-step onboarding flow
+- Profile management with photo uploads
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### 🏠 Core Food Delivery Features
+- Browse restaurants and menus
+- Advanced search and filtering
+- Real-time order tracking with Mapbox
+- Multiple payment options via Stripe
+- Order history and favorites
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 📱 Enhanced Mobile Features
+- Push notifications for order updates
+- QR code scanner for restaurant promos
+- Photo uploads for reviews and profiles
+- Offline mode support
+- Dark/Light theme toggle
 
-```sh
-# Using npm
-npm start
+### 💳 Payment & Security
+- Stripe payment integration
+- Secure card storage
+- Multiple payment methods
+- Order receipt generation
 
-# OR using Yarn
-yarn start
+### 🗺️ Location Services
+- Real-time GPS tracking
+- Delivery route optimization
+- Restaurant location mapping
+- Address management
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React Native CLI** - Native mobile development
+- **TypeScript** - Type safety and better development experience
+- **React Navigation v6** - Navigation and routing
+- **Redux Toolkit** - State management
+- **React Hook Form** - Form handling
+- **Reanimated 3** - Smooth animations
+
+### Backend & Services
+- **Supabase** - Backend as a Service
+  - PostgreSQL Database
+  - Real-time subscriptions
+  - Authentication
+  - File storage
+- **Stripe** - Payment processing
+- **Mapbox** - Maps and location services
+- **Firebase Cloud Messaging** - Push notifications
+
+### Development Tools
+- **ESLint & Prettier** - Code formatting
+- **Husky** - Git hooks
+- **Jest** - Testing framework
+- **Flipper** - Debugging
+- **CodePush** - Over-the-air updates
+
+## 🏗️ Project Structure
+
+```
+src/
+├── components/           # Reusable UI components
+│   ├── common/          # Generic components (Button, Input, etc.)
+│   ├── forms/           # Form-specific components
+│   └── ui/              # UI-specific components
+├── screens/             # Screen components
+│   ├── auth/            # Authentication screens
+│   ├── onboarding/      # Onboarding flow
+│   ├── home/            # Home and main screens
+│   ├── restaurant/      # Restaurant related screens
+│   ├── order/           # Order management screens
+│   └── profile/         # User profile screens
+├── navigation/          # Navigation configuration
+│   ├── AuthNavigator.tsx
+│   ├── AppNavigator.tsx
+│   └── TabNavigator.tsx
+├── services/            # API and external services
+│   ├── api/             # API calls and endpoints
+│   ├── auth/            # Authentication services
+│   ├── storage/         # Local storage utilities
+│   └── notifications/   # Push notification setup
+├── store/               # Redux store configuration
+│   ├── slices/          # Redux slices
+│   └── index.ts         # Store setup
+├── utils/               # Utility functions
+│   ├── constants/       # App constants
+│   ├── helpers/         # Helper functions
+│   └── validation/      # Form validation schemas
+├── hooks/               # Custom React hooks
+├── context/             # React Context providers
+├── types/               # TypeScript type definitions
+└── assets/              # Images, fonts, and static files
+    ├── images/
+    ├── icons/
+    └── fonts/
 ```
 
-## Step 2: Build and run your app
+## 🚀 Getting Started
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### Prerequisites
+- Node.js (v18 or higher)
+- React Native CLI
+- Android Studio / Xcode
+- Supabase account
+- Stripe account
+- Mapbox account
 
-### Android
+### Installation
 
-```sh
-# Using npm
-npm run android
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/salmanazamdev/nanbites-food-delivery-app.git
+   cd nanbites-food-delivery-app
+   ```
 
-# OR using Yarn
-yarn android
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **iOS Setup** (if developing for iOS)
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+4. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your environment variables:
+   ```env
+   # Supabase
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # Stripe
+   STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   
+   # Mapbox
+   MAPBOX_ACCESS_TOKEN=your_mapbox_token
+   
+   # Google OAuth
+   GOOGLE_CLIENT_ID=your_google_client_id
+   ```
+
+5. **Run the application**
+   ```bash
+   # Start Metro bundler
+   npx react-native start
+   
+   # Run on Android
+   npx react-native run-android
+   
+   # Run on iOS
+   npx react-native run-ios
+   ```
+
+## 📊 Database Schema (Supabase)
+
+### Key Tables
+- `users` - User profiles and authentication
+- `restaurants` - Restaurant information and details
+- `menu_items` - Food items and pricing
+- `orders` - Order management and tracking
+- `order_items` - Individual items in orders
+- `reviews` - User reviews and ratings
+- `addresses` - User delivery addresses
+- `payments` - Payment transaction records
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary**: Orange (#FF6B35)
+- **Secondary**: Dark Blue (#2D3748)
+- **Success**: Green (#48BB78)
+- **Warning**: Yellow (#ED8936)
+- **Error**: Red (#E53E3E)
+- **Background**: Light Gray (#F7FAFC)
+
+### Typography
+- **Primary Font**: Inter
+- **Headings**: Bold weights (600-800)
+- **Body Text**: Regular (400) and Medium (500)
+
+## 🔧 Key Integrations
+
+### Authentication Flow
+```typescript
+// Google OAuth + Supabase Auth
+// Email/Password with email verification
+// Secure token management
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+### Payment Integration
+```typescript
+// Stripe payment processing
+// Card tokenization
+// Secure payment flow
 ```
 
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
+### Real-time Features
+```typescript
+/ Supabase real-time subscriptions
+// Live order tracking
+// Push notifications
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## 📱 Screens Overview
 
-```sh
-# Using npm
-npm run ios
+### Authentication Flow
+1. **Splash Screen** - App loading with branding
+2. **Onboarding** - 3-step feature introduction
+3. **Login/Signup** - Multiple authentication options
+4. **Email Verification** - Account confirmation
 
-# OR using Yarn
-yarn ios
+### Main Application
+1. **Home** - Restaurant discovery and featured items
+2. **Search** - Advanced filtering and search
+3. **Restaurant Detail** - Menu browsing and customization
+4. **Cart** - Order review and modification
+5. **Checkout** - Payment and delivery details
+6. **Order Tracking** - Real-time delivery tracking
+7. **Profile** - User settings and order history
+
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run E2E tests
+npm run test:e2e
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 📦 Build & Deployment
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+### Development Build
+```bash
+# Android
+npx react-native run-android --variant=debug
 
-## Step 3: Modify your app
+# iOS
+npx react-native run-ios --configuration Debug
+```
 
-Now that you have successfully run the app, let's make changes!
+### Production Build
+```bash
+# Android
+cd android && ./gradlew assembleRelease
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+# iOS
+# Use Xcode for production builds
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+## 🤝 Contributing
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
+## 👨‍💻 Author
 
-### Now what?
+**Salman Azam**
+- GitHub: [@salmanazamdev](https://github.com/salmanazamdev)
+- LinkedIn: [Your LinkedIn Profile]
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 🙏 Acknowledgments
 
-# Troubleshooting
+- Built during internship program
+- Inspired by modern food delivery applications
+- Special thanks to mentors and the development team
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## 🔮 Roadmap
 
-# Learn More
+### Phase 1 (Current) - Core Features ✅
+- [x] Authentication system
+- [x] Basic food ordering
+- [x] Payment integration
+- [x] Map integration
 
-To learn more about React Native, take a look at the following resources:
+### Phase 2 - Enhanced Features 🚧
+- [ ] Real-time chat with delivery partners
+- [ ] Advanced analytics dashboard
+- [ ] Loyalty program integration
+- [ ] Multi-language support
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+### Phase 3 - Advanced Features 📋
+- [ ] AI-powered food recommendations
+- [ ] Voice ordering capabilities
+- [ ] Augmented reality menu previews
+- [ ] Social features and food sharing
+
+---
+
+**Made with ❤️ using React Native & Supabase**
