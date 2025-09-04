@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
+import Colors from "@/utils/constants/colors";
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -17,12 +18,13 @@ const App = () => {
   }, []);
 
   if (isLoading) {
-    return null; // or custom loader
+    return null;
   }
 
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      {/* using centralized brand colors */}
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
       <NavigationContainer>
         <AppNavigator
           isFirstLaunch={isFirstLaunch}
