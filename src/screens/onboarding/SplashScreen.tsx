@@ -2,7 +2,7 @@ import { View, Text, Dimensions, Image } from "react-native";
 import { useEffect } from "react";
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
-import Colors from "@/utils/constants/colors"; // 🎨 central theme
+import Colors from "@/utils/constants/colors"; 
 
 const { height } = Dimensions.get("window");
 
@@ -19,7 +19,7 @@ export default function SplashScreen() {
     <View
       style={{
         flex: 1,
-        backgroundColor: Colors.background, // ✅ from theme
+        backgroundColor: Colors.background, 
         justifyContent: "center",
         alignItems: "center",
       }}
@@ -36,7 +36,7 @@ export default function SplashScreen() {
         style={{
           fontSize: 32,
           fontWeight: "700",
-          color: Colors.primary, // ✅ Orange brand color
+          color: Colors.primary,
           letterSpacing: 1,
         }}
       >
