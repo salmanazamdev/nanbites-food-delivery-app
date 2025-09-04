@@ -1,6 +1,6 @@
 import React from 'react';
-//import { NavigationContainer } from '@react-navigation/native';
-//import { StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar } from 'react-native';
 // We'll import these as we create them
 // import SplashScreen from './src/screens/onboarding/SplashScreen';
 // import AppNavigator from './src/navigation/AppNavigator';
