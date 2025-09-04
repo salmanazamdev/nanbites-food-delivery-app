@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "strict": true,
+    "jsx": "react-native"
   },
   "include": ["**/*.ts", "**/*.tsx", "@types"],
   "exclude": ["node_modules", "Pods"]
