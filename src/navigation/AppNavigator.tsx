@@ -1,19 +1,22 @@
-// src/navigation/AppNavigator.tsx
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/home/HomeScreen';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import OnboardingNavigator from "./OnboardingNavigator";
+import AuthNavigator from "./AuthNavigator";
+import TabNavigator from "./TabNavigator";
 
-export type AppTabParamList = {
-  Home: undefined;
-};
+const Stack = createNativeStackNavigator();
 
-const Tab = createBottomTabNavigator<AppTabParamList>();
-
-const AppNavigator = () => {
+const AppNavigator = ({ isFirstLaunch, isAuthenticated }: { isFirstLaunch: boolean, isAuthenticated: boolean }) => {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-    </Tab.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {isFirstLaunch ? (
+        <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
+      ) : !isAuthenticated ? (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+      ) : (
+        <Stack.Screen name="Main" component={TabNavigator} />
+      )}
+    </Stack.Navigator>
   );
 };
 

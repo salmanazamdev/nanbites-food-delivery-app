@@ -2,11 +2,11 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import SplashScreen from '../screens/onboarding/SplashScreen';
-import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
-import WalkthroughOne from '../screens/onboarding/WalkthroughOne';
-import WalkthroughTwo from '../screens/onboarding/WalkthroughTwo';
-import WalkthroughThree from '../screens/onboarding/WalkthroughThree';
+import SplashScreen from '../screens/onboarding/Splash';
+import WelcomeScreen from '../screens/onboarding/Welcome';
+import WalkthroughOne from '../screens/onboarding/WalkOne';
+import WalkthroughTwo from '../screens/onboarding/WalkTwo';
+import WalkthroughThree from '../screens/onboarding/WalkThree';
 // Later: import Login, Signup, etc.
 
 export type AuthStackParamList = {
