@@ -1,22 +1,17 @@
-import React, { useEffect } from "react";
-import { View, Text, Dimensions } from "react-native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, Dimensions, Image } from "react-native";
+import { useEffect } from "react";
+import { router } from "expo-router";
 import LottieView from "lottie-react-native";
+import Colors from "@/utils/constants/colors"; // 🎨 central theme
 
 const { height } = Dimensions.get("window");
 
-type RootStackParamList = {
-  Welcome: undefined;
-};
-
 export default function SplashScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("Welcome"); // goes to WelcomeScreen
+      router.replace("/onboarding/walk1");
     }, 2500);
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -24,22 +19,38 @@ export default function SplashScreen() {
     <View
       style={{
         flex: 1,
-        backgroundColor: "#ffffff",
+        backgroundColor: Colors.background, // ✅ from theme
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <Text style={{ fontSize: 28, fontWeight: "600", color: "#000000" }}>
-        🍽️ NanBites
+      {/* App Logo */}
+      <Image
+        source={require("@/assets/images/logo.png")}
+        style={{ width: 140, height: 140, marginBottom: 20 }}
+        resizeMode="contain"
+      />
+
+      {/* App Name */}
+      <Text
+        style={{
+          fontSize: 32,
+          fontWeight: "700",
+          color: Colors.primary, // ✅ Orange brand color
+          letterSpacing: 1,
+        }}
+      >
+        NanBites
       </Text>
 
+      {/* Loader Animation */}
       <LottieView
-        source={require("../../assets/lottie/loader.json")}
+        source={require("@/assets/lottie/loader.json")}
         autoPlay
         loop
         style={{
           position: "absolute",
-          bottom: height * 0.09,
+          bottom: height * 0.08,
           width: 90,
           height: 90,
         }}
