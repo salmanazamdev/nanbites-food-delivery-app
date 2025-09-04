@@ -1,36 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
-// We'll import these as we create them
-// import SplashScreen from './src/screens/onboarding/SplashScreen';
-// import AppNavigator from './src/navigation/AppNavigator';
+
+import AuthNavigator from './src/navigation/AuthNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
 
 const App = () => {
-  // TODO: Add state management for app initialization
-  // const [isLoading, setIsLoading] = useState(true);
-  // const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // TODO: Add initialization logic
-  // useEffect(() => {
-  //   // Check if first launch
-  //   // Check authentication status
-  //   // Initialize services
-  // }, []);
+  useEffect(() => {
+    // Simulate loading (splash delay)
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+  }, []);
 
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <NavigationContainer>
-        {/* TODO: Add conditional rendering based on app state */}
-        {/* {isLoading ? (
-          <SplashScreen />
-        ) : (
+        {isLoading ? (
+          <AuthNavigator />
+        ) : isAuthenticated ? (
           <AppNavigator />
-        )} */}
-        
-        {/* For now, just render a placeholder */}
-        <></>
+        ) : (
+          <AuthNavigator />
+        )}
       </NavigationContainer>
     </>
   );
