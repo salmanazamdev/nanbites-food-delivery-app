@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Colors from "../../utils/constants/colors"; 
 
 type RootStackParamList = {
   Walk2: undefined;
@@ -27,7 +28,7 @@ export default function Walk1() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("WelcomeScreen")}
+        onPress={() => navigation.navigate("Walk2")}
       >
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
@@ -35,12 +36,10 @@ export default function Walk1() {
   );
 }
 
-const customGreen = "#1a974e";
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 60,
@@ -57,16 +56,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 38,
     fontWeight: "bold",
-    color: customGreen,
+    color: Colors.primary, //  using brand orange
     marginBottom: 20,
   },
   description: {
     fontSize: 16,
-    color: "#555",
+    color: Colors.secondary,
     textAlign: "center",
   },
   button: {
-    backgroundColor: customGreen,
+    backgroundColor: Colors.accent, //  using accent green
     width: "70%",
     paddingVertical: 12,
     paddingHorizontal: 40,
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   buttonText: {
-    color: "#fff",
+    color: Colors.background,
     fontSize: 16,
     textAlign: "center",
     fontWeight: "bold",
