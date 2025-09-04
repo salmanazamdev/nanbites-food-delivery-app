@@ -137,7 +137,8 @@ src/
    ```bash
    cp .env.example .env
    ```
-   
+   en.example are just to understand the logic
+
    Fill in your environment variables:
    ```env
    # Supabase
