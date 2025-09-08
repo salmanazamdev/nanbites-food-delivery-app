@@ -1,12 +1,13 @@
 import { View, Text, Dimensions, Image } from "react-native";
 import { useEffect } from "react";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import LottieView from "lottie-react-native";
 import Colors from "@/utils/constants/colors"; 
 
 const { height } = Dimensions.get("window");
 
 export default function SplashScreen() {
+  const router = useRouter();
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace("/onboarding/walk1");
