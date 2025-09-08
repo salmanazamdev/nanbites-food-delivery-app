@@ -26,7 +26,7 @@ export default function SplashScreen() {
     >
       {/* App Logo */}
       <Image
-        source={require("@/assets/images/logo.png")}
+        source={require("@/assets/images/logo2.png")}
         style={{ width: 140, height: 140, marginBottom: 20 }}
         resizeMode="contain"
       />
