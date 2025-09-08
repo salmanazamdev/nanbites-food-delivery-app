@@ -8,7 +8,7 @@ import Colors from "@/utils/constants/colors";
 const { height } = Dimensions.get("window");
 
 type RootStackParamList = {
-  Walk1: undefined;
+  WelcomeScreen: undefined;
 };
 
 export default function SplashScreen() {
@@ -16,7 +16,7 @@ export default function SplashScreen() {
   
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("Walk1"); // Navigate to Walk1 screen
+      navigation.replace("WelcomeScreen"); // Navigate to WelcomeScreen screen
     }, 2500);
 
     return () => clearTimeout(timer);
