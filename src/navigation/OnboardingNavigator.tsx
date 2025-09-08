@@ -10,8 +10,8 @@ const Stack = createNativeStackNavigator();
 
 const OnboardingNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Splash" component={SplashScreen} />
-    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+    <Stack.Screen name="SplashScreen" component={SplashScreen} />
+    <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
     <Stack.Screen name="Walk1" component={Walk1} />
     <Stack.Screen name="Walk2" component={Walk2} />
     <Stack.Screen name="Walk3" component={Walk3} />
