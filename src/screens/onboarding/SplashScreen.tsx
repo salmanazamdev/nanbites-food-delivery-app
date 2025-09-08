@@ -38,7 +38,7 @@ export default function SplashScreen() {
         resizeMode="contain"
       />
 
-      {/* App Name */}
+      {/* App Name
       <Text
         style={{
           fontSize: 32,
@@ -48,7 +48,7 @@ export default function SplashScreen() {
         }}
       >
         NanBites
-      </Text>
+      </Text> */}
 
       {/* Loader Animation */}
       <LottieView
