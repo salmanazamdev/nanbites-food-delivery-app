@@ -1,20 +1,26 @@
 import { View, Text, Dimensions, Image } from "react-native";
 import { useEffect } from "react";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import LottieView from "lottie-react-native";
 import Colors from "@/utils/constants/colors"; 
 
 const { height } = Dimensions.get("window");
 
+type RootStackParamList = {
+  Walk1: undefined;
+};
+
 export default function SplashScreen() {
-  const router = useRouter();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace("/onboarding/walk1");
+      navigation.replace("Walk1"); // Navigate to Walk1 screen
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [navigation]);
 
   return (
     <View
