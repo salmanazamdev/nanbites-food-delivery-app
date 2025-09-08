@@ -26,7 +26,7 @@ export default function SplashScreen() {
     >
       {/* App Logo */}
       <Image
-        source={require("/src/assets/images/onboarding/logo2.png")}
+        source={require("@/assets/images/onboarding/logo2.png")}
         style={{ width: 140, height: 140, marginBottom: 20 }}
         resizeMode="contain"
       />
@@ -45,7 +45,7 @@ export default function SplashScreen() {
 
       {/* Loader Animation */}
       <LottieView
-        source={require("/src/assets/animations/lottie/loader.json")}
+        source={require("@/assets/animations/lottie/loader.json")}
         autoPlay
         loop
         style={{

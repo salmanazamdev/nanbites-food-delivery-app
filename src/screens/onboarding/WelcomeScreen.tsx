@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
 
   return (
     <ImageBackground
-      source={require("../../assets/images/welcomebg.jpg")}
+      source={require("@/assets/images/onboarding/logo2.png")}
       style={styles.bg}
     >
       <View style={styles.overlay}>
