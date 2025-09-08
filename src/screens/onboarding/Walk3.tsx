@@ -14,15 +14,15 @@ export default function Walk1() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/onboarding/logo2.png")}
+        source={require("@/assets/images/onboarding/delivery.png")}
         style={styles.image}
         resizeMode="contain"
       />
 
       <View style={styles.textContainer}>
-        <Text style={styles.title}>Order Food</Text>
+        <Text style={styles.title}>Fast Delivery</Text>
         <Text style={styles.description}>
-          Browse your favorite meals and order instantly.
+          Get your food delivered to you in no time.
         </Text>
       </View>
 

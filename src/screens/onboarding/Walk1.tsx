@@ -14,7 +14,7 @@ export default function Walk1() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/onboarding/logo2.png")}
+        source={require("@/assets/images/onboarding/plate.png")}
         style={styles.image}
         resizeMode="contain"
       />
