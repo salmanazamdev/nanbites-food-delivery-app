@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Colors from "../../utils/constants/colors"; 
 
 type RootStackParamList = {
-  LoginScreen: undefined;
+  Auth: undefined;
 };
 
 export default function Walk1() {
@@ -28,7 +28,7 @@ export default function Walk1() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("LoginScreen")}
+        onPress={() => navigation.navigate("Auth")}
       >
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
