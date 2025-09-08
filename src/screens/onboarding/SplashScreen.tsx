@@ -45,7 +45,7 @@ export default function SplashScreen() {
 
       {/* Loader Animation */}
       <LottieView
-        source={require("@/assets/lottie/loader.json")}
+        source={require("/src/assets/animations/lottie/loader.json")}
         autoPlay
         loop
         style={{
