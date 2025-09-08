@@ -2,24 +2,14 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "../../utils/constants/colors"; 
 
 type RootStackParamList = {
   Auth: undefined;
 };
 
-export default function Walk3() {
+export default function Walk1() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const finishOnboarding = async () => {
-    try {
-      await AsyncStorage.setItem("hasLaunched", "true");
-      navigation.navigate("Auth"); // go to Auth flow
-    } catch (error) {
-      console.log("Error saving launch state:", error);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -36,7 +26,10 @@ export default function Walk3() {
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={finishOnboarding}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Auth")}
+      >
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
     </View>
@@ -63,7 +56,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 38,
     fontWeight: "bold",
-    color: Colors.primary,
+    color: Colors.primary, //  using brand orange
     marginBottom: 20,
   },
   description: {
@@ -72,7 +65,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: Colors.accent,
+    backgroundColor: Colors.accent, //  using accent green
     width: "70%",
     paddingVertical: 12,
     paddingHorizontal: 40,

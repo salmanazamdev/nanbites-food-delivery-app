@@ -13,11 +13,9 @@ const App = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        // check if onboarding already completed
         const hasLaunched = await AsyncStorage.getItem("hasLaunched");
         setIsFirstLaunch(hasLaunched === null);
 
-        // check authentication (later replace with real token check)
         const token = await AsyncStorage.getItem("userToken");
         setIsAuthenticated(!!token);
       } catch (e) {
