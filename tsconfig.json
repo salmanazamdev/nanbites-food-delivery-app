@@ -8,12 +8,7 @@
   },
   "include": [
     "**/*.ts", 
-    "**/*.tsx", 
-    "@types", 
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "**/*.tsx"
   ],
-
   "exclude": ["node_modules", "Pods"]
 }
