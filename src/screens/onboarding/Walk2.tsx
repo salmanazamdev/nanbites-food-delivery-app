@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Colors from "../../utils/constants/colors"; 
 
 type RootStackParamList = {
-  Walk2: undefined;
+  Walk3: undefined;
 };
 
 export default function Walk1() {
@@ -14,13 +14,13 @@ export default function Walk1() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../../assets/images/plate.png")}
+        source={require("../../assets/images/logo.png")}
         style={styles.image}
         resizeMode="contain"
       />
 
       <View style={styles.textContainer}>
-        <Text style={styles.title}>Order Food</Text>
+        <Text style={styles.title}>Order Food 2</Text>
         <Text style={styles.description}>
           Browse your favorite meals and order instantly.
         </Text>
@@ -28,7 +28,7 @@ export default function Walk1() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Walk2")}
+        onPress={() => navigation.navigate("Walk3")}
       >
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
