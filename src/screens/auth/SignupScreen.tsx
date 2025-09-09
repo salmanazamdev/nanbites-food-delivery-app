@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -103,6 +104,7 @@ export default function SignupScreen() {
   };
 
   return (
+     <ScrollView>
     <View style={styles.container}>
       {/* Back button */}
       <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -131,6 +133,7 @@ export default function SignupScreen() {
           secureTextEntry
           value={password}
           onChangeText={setPassword}
+          autoCapitalize="none"
         />
 
         <Text style={styles.label}>Confirm Password</Text>
@@ -141,6 +144,7 @@ export default function SignupScreen() {
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+          autoCapitalize="none"
         />
 
         {/* Register Button */}
@@ -234,15 +238,16 @@ export default function SignupScreen() {
         </View>
       </Modal>
     </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background, padding: 24 },
-  backBtn: { position: "absolute", top: 50, left: 24, zIndex: 2 },
-  formBox: { marginTop: 80 },
+  backBtn: { position: "absolute", top: 20, left: 24, zIndex: 2 },
+  formBox: { marginTop: 40 },
   title: { fontSize: 28, fontWeight: "bold", color: Colors.primary, marginBottom: 20 },
-  label: { color: Colors.secondary, fontSize: 16, marginBottom: 6, marginTop: 10 },
+  label: { color: Colors.secondary, fontSize: 16, marginBottom: 2, marginTop: 10 },
   input: {
     borderWidth: 1,
     borderColor: Colors.secondary,
