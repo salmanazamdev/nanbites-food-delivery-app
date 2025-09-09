@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Colors from "../../utils/constants/colors"; 
 
 type RootStackParamList = {
@@ -10,6 +11,14 @@ type RootStackParamList = {
 
 export default function Walk1() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleFinishOnboarding = async () => {
+  await AsyncStorage.setItem('hasLaunched', 'true');
+  navigation.reset({
+    index: 0,
+    routes: [{ name: 'Auth' }],
+  });
+};
 
   return (
     <View style={styles.container}>
@@ -26,12 +35,12 @@ export default function Walk1() {
         </Text>
       </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("Auth")}
-      >
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
+<TouchableOpacity
+  style={styles.button}
+  onPress={handleFinishOnboarding}
+>
+  <Text style={styles.buttonText}>Next</Text>
+</TouchableOpacity>
     </View>
   );
 }
