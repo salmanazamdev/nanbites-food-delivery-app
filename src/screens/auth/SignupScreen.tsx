@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ReactNativeBiometrics from "react-native-biometrics";
 import { useAuth } from "../../context/AuthContext";
 import Colors from "@/utils/constants/colors";
 
@@ -48,7 +49,27 @@ export default function SignupScreen() {
       if (error) {
         Alert.alert("Signup Failed", error.message);
       } else {
+        // Save credentials for biometric login
+        await AsyncStorage.setItem("userEmail", email);
+        await AsyncStorage.setItem("userPassword", password);
         await AsyncStorage.setItem("hasLaunched", "true"); // skip onboarding next time
+
+        // Ask user if they want to enable biometrics now
+        const rnBiometrics = new ReactNativeBiometrics();
+        rnBiometrics
+          .simplePrompt({ promptMessage: "Enable Biometric Login?" })
+          .then((resultObject) => {
+            const { success } = resultObject;
+            if (success) {
+              Alert.alert("Success", "Biometric login has been enabled!");
+            } else {
+              Alert.alert("Notice", "You can enable biometrics later in settings.");
+            }
+          })
+          .catch(() => {
+            console.log("Biometric setup skipped");
+          });
+
         Alert.alert("Success", "Account created! Please log in.");
         navigation.replace("LoginScreen");
       }

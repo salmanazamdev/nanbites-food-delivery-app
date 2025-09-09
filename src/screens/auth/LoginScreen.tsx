@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/screens/auth/LoginScreen.tsx
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ReactNativeBiometrics from 'react-native-biometrics';
 import { useAuth } from '../../context/AuthContext';
 import Colors from '@/utils/constants/colors';
 
@@ -24,9 +26,38 @@ type RootStackParamList = {
 export default function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { signIn } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    checkBiometricLogin();
+  }, []);
+
+  // Try biometric login if credentials are stored
+  const checkBiometricLogin = async () => {
+    const rnBiometrics = new ReactNativeBiometrics();
+    const storedEmail = await AsyncStorage.getItem('userEmail');
+    const storedPassword = await AsyncStorage.getItem('userPassword');
+
+    if (storedEmail && storedPassword) {
+      rnBiometrics
+        .simplePrompt({ promptMessage: 'Login with Biometrics' })
+        .then(async (resultObject) => {
+          const { success } = resultObject;
+          if (success) {
+            const { error } = await signIn(storedEmail, storedPassword);
+            if (!error) {
+              await AsyncStorage.setItem('hasLaunched', 'true');
+            }
+          }
+        })
+        .catch(() => {
+          console.log('Biometric auth cancelled or failed');
+        });
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,13 +68,16 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const { error } = await signIn(email, password);
-      
+
       if (error) {
         Alert.alert('Login Failed', error.message);
       } else {
+        // Save credentials for biometric login
+        await AsyncStorage.setItem('userEmail', email);
+        await AsyncStorage.setItem('userPassword', password);
+
         // Mark that user has completed onboarding
         await AsyncStorage.setItem('hasLaunched', 'true');
-        // Navigation will be handled automatically by auth context
       }
     } catch (error) {
       console.error(error);
@@ -56,10 +90,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       {/* Back button */}
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => navigation.goBack()}
-      >
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
         <Icon name="arrow-back" size={26} color={Colors.primary} />
       </TouchableOpacity>
 
@@ -87,8 +118,8 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
 
-        <TouchableOpacity 
-          style={[styles.loginBtn, loading && styles.disabledBtn]} 
+        <TouchableOpacity
+          style={[styles.loginBtn, loading && styles.disabledBtn]}
           onPress={handleLogin}
           disabled={loading}
         >
@@ -99,6 +130,7 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
+        {/* Divider */}
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
           <Text style={styles.orText}>or</Text>
@@ -112,7 +144,7 @@ export default function LoginScreen() {
           />
           <Text style={styles.socialText}>Login with Google</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.socialBtn}>
           <Image
             source={require('@/assets/images/onboarding/apple.png')}
@@ -125,10 +157,7 @@ export default function LoginScreen() {
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Don't have an account?{' '}
-          <Text
-            style={styles.link}
-            onPress={() => navigation.navigate('SignupScreen')}
-          >
+          <Text style={styles.link} onPress={() => navigation.navigate('SignupScreen')}>
             Register
           </Text>
         </Text>
@@ -138,26 +167,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: Colors.background, 
-    padding: 24 
-  },
-  backBtn: { 
-    position: 'absolute', 
-    top: 50, 
-    left: 24, 
-    zIndex: 2 
-  },
-  formBox: { 
-    marginTop: 80 
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: Colors.primary,
-    marginBottom: 20,
-  },
+  container: { flex: 1, backgroundColor: Colors.background, padding: 24 },
+  backBtn: { position: 'absolute', top: 50, left: 24, zIndex: 2 },
+  formBox: { marginTop: 80 },
+  title: { fontSize: 28, fontWeight: 'bold', color: Colors.primary, marginBottom: 20 },
   input: {
     borderWidth: 1,
     borderColor: Colors.secondary,
@@ -174,28 +187,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  disabledBtn: {
-    backgroundColor: Colors.secondary,
-    opacity: 0.6,
-  },
-  loginBtnText: { 
-    color: 'white', 
-    fontWeight: 'bold' 
-  },
-  dividerRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginVertical: 18 
-  },
-  divider: { 
-    flex: 1, 
-    height: 1, 
-    backgroundColor: '#ddd' 
-  },
-  orText: { 
-    marginHorizontal: 10, 
-    color: Colors.secondary 
-  },
+  disabledBtn: { backgroundColor: Colors.secondary, opacity: 0.6 },
+  loginBtnText: { color: 'white', fontWeight: 'bold' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 18 },
+  divider: { flex: 1, height: 1, backgroundColor: '#ddd' },
+  orText: { marginHorizontal: 10, color: Colors.secondary },
   socialBtn: {
     borderWidth: 1,
     borderColor: Colors.secondary,
@@ -205,23 +201,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  icon: { 
-    width: 20, 
-    height: 20, 
-    marginRight: 10 
-  },
-  socialText: { 
-    color: Colors.secondary 
-  },
-  footer: { 
-    alignItems: 'center', 
-    marginTop: 20 
-  },
-  footerText: { 
-    color: Colors.secondary 
-  },
-  link: { 
-    color: Colors.primary, 
-    fontWeight: 'bold' 
-  },
+  icon: { width: 20, height: 20, marginRight: 10 },
+  socialText: { color: Colors.secondary },
+  footer: { alignItems: 'center', marginTop: 20 },
+  footerText: { color: Colors.secondary },
+  link: { color: Colors.primary, fontWeight: 'bold' },
 });
