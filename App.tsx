@@ -1,27 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { StatusBar, ActivityIndicator, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import AppNavigator from "./src/navigation/AppNavigator";
-import Colors from "@/utils/constants/colors";
+// App.tsx
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { StatusBar, ActivityIndicator, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppNavigator from './src/navigation/AppNavigator';
+import { AuthProvider } from './src/context/AuthContext';
+import Colors from '@/utils/constants/colors';
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       try {
-        const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
         setIsFirstLaunch(hasLaunched === null);
-
-        const token = await AsyncStorage.getItem("userToken");
-        setIsAuthenticated(!!token);
       } catch (e) {
-        console.log("Init error:", e);
+        console.log('Init error:', e);
         setIsFirstLaunch(false);
-        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
@@ -32,7 +29,7 @@ const App = () => {
 
   if (isLoading || isFirstLaunch === null) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
@@ -41,12 +38,11 @@ const App = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
-      <NavigationContainer>
-        <AppNavigator
-          isFirstLaunch={isFirstLaunch}
-          isAuthenticated={isAuthenticated}
-        />
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator isFirstLaunch={isFirstLaunch} />
+        </NavigationContainer>
+      </AuthProvider>
     </>
   );
 };
