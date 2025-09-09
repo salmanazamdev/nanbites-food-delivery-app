@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -108,6 +109,7 @@ export default function LoginScreen() {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       {/* Back button */}
       <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -225,6 +227,7 @@ export default function LoginScreen() {
         </View>
       </Modal>
     </View>
+    </ScrollView>
   );
 }
 
