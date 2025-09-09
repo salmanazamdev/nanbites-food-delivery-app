@@ -8,7 +8,7 @@ type RootStackParamList = {
   Walk3: undefined;
 };
 
-export default function Walk1() {
+export default function Walk2() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (

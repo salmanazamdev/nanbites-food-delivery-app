@@ -1,24 +1,14 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Colors from "../../utils/constants/colors"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Colors from "../../utils/constants/colors";
 
-type RootStackParamList = {
-  Auth: undefined;
-};
-
-export default function Walk1() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
+export default function Walk3() {
   const handleFinishOnboarding = async () => {
-  await AsyncStorage.setItem('hasLaunched', 'true');
-  navigation.reset({
-    index: 0,
-    routes: [{ name: 'Auth' }],
-  });
-};
+    // Save that onboarding is done
+    await AsyncStorage.setItem("hasLaunched", "true");
+    // Do NOT navigate manually — AppNavigator will re-render and show Auth
+  };
 
   return (
     <View style={styles.container}>
@@ -35,12 +25,9 @@ export default function Walk1() {
         </Text>
       </View>
 
-<TouchableOpacity
-  style={styles.button}
-  onPress={handleFinishOnboarding}
->
-  <Text style={styles.buttonText}>Next</Text>
-</TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleFinishOnboarding}>
+        <Text style={styles.buttonText}>Next</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -65,7 +52,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 38,
     fontWeight: "bold",
-    color: Colors.primary, //  using brand orange
+    color: Colors.primary,
     marginBottom: 20,
   },
   description: {
@@ -74,7 +61,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: Colors.accent, //  using accent green
+    backgroundColor: Colors.accent,
     width: "70%",
     paddingVertical: 12,
     paddingHorizontal: 40,
