@@ -24,11 +24,14 @@ const AppNavigator = ({ isFirstLaunch }: { isFirstLaunch: boolean }) => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isFirstLaunch ? (
+        // Show onboarding if it's the very first app launch
         <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
-      ) : !user ? (
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-      ) : (
+      ) : user ? (
+        // If user exists → go to main app
         <Stack.Screen name="Main" component={TabNavigator} />
+      ) : (
+        // Else → go to auth screens
+        <Stack.Screen name="Auth" component={AuthNavigator} />
       )}
     </Stack.Navigator>
   );
