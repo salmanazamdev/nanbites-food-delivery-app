@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -32,6 +33,12 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Fingerprint states
+  const [fingerprintRegistered, setFingerprintRegistered] = useState(false);
+  const [showFingerprintModal, setShowFingerprintModal] = useState(false);
+  const [fingerprintStatus, setFingerprintStatus] = useState<"idle" | "success" | "fail">("idle");
+
+  // Handle signup
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields");
@@ -49,26 +56,9 @@ export default function SignupScreen() {
       if (error) {
         Alert.alert("Signup Failed", error.message);
       } else {
-        // Save credentials for biometric login
         await AsyncStorage.setItem("userEmail", email);
         await AsyncStorage.setItem("userPassword", password);
         await AsyncStorage.setItem("hasLaunched", "true"); // skip onboarding next time
-
-        // Ask user if they want to enable biometrics now
-        const rnBiometrics = new ReactNativeBiometrics();
-        rnBiometrics
-          .simplePrompt({ promptMessage: "Enable Biometric Login?" })
-          .then((resultObject) => {
-            const { success } = resultObject;
-            if (success) {
-              Alert.alert("Success", "Biometric login has been enabled!");
-            } else {
-              Alert.alert("Notice", "You can enable biometrics later in settings.");
-            }
-          })
-          .catch(() => {
-            console.log("Biometric setup skipped");
-          });
 
         Alert.alert("Success", "Account created! Please log in.");
         navigation.replace("LoginScreen");
@@ -78,6 +68,37 @@ export default function SignupScreen() {
       Alert.alert("Error", "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle fingerprint registration
+  const handleRegisterFingerprint = async () => {
+    setShowFingerprintModal(true);
+    setFingerprintStatus("idle");
+
+    try {
+      const rnBiometrics = new ReactNativeBiometrics();
+      const { available } = await rnBiometrics.isSensorAvailable();
+
+      if (!available) {
+        setFingerprintStatus("fail");
+        return;
+      }
+
+      const result = await rnBiometrics.simplePrompt({
+        promptMessage: "Register your fingerprint",
+      });
+
+      if (result.success) {
+        await AsyncStorage.setItem("fingerprintRegistered", "true");
+        setFingerprintRegistered(true);
+        setFingerprintStatus("success");
+      } else {
+        setFingerprintStatus("fail");
+      }
+    } catch (error) {
+      console.log(error);
+      setFingerprintStatus("fail");
     }
   };
 
@@ -122,6 +143,7 @@ export default function SignupScreen() {
           onChangeText={setConfirmPassword}
         />
 
+        {/* Register Button */}
         <TouchableOpacity
           style={[styles.loginBtn, loading && styles.disabledBtn]}
           onPress={handleRegister}
@@ -134,13 +156,26 @@ export default function SignupScreen() {
           )}
         </TouchableOpacity>
 
+        {/* Fingerprint Button */}
+        <TouchableOpacity
+          style={[
+            styles.loginBtn,
+            { backgroundColor: fingerprintRegistered ? "#4CAF50" : Colors.secondary, marginTop: 10 },
+          ]}
+          onPress={handleRegisterFingerprint}
+        >
+          <Text style={styles.loginBtnText}>
+            {fingerprintRegistered ? "Fingerprint Registered" : "Register Fingerprint"}
+          </Text>
+        </TouchableOpacity>
+
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
           <Text style={styles.orText}>or</Text>
           <View style={styles.divider} />
         </View>
 
-        {/* Social login buttons (future Supabase OAuth) */}
+        {/* Social login buttons */}
         <TouchableOpacity style={styles.socialBtn}>
           <Image source={require("@/assets/images/onboarding/google.png")} style={styles.icon} />
           <Text style={styles.socialText}>Sign up with Google</Text>
@@ -160,6 +195,44 @@ export default function SignupScreen() {
           </Text>
         </Text>
       </View>
+
+      {/* Fingerprint Modal */}
+      <Modal visible={showFingerprintModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Icon
+              name="finger-print"
+              size={60}
+              color={
+                fingerprintStatus === "success"
+                  ? "#4CAF50"
+                  : fingerprintStatus === "fail"
+                  ? "#F44336"
+                  : "#fff"
+              }
+              style={{ alignSelf: "center", marginBottom: 16 }}
+            />
+            {fingerprintStatus === "idle" && (
+              <Text style={styles.modalText}>
+                Please hold your finger at the scanner to verify your identity
+              </Text>
+            )}
+            {fingerprintStatus === "success" && (
+              <Text style={[styles.modalText, { color: "#4CAF50" }]}>
+                Fingerprint registered successfully!
+              </Text>
+            )}
+            {fingerprintStatus === "fail" && (
+              <Text style={[styles.modalText, { color: "#F44336" }]}>
+                Your fingerprint did not match. Please try again later.
+              </Text>
+            )}
+            <TouchableOpacity onPress={() => setShowFingerprintModal(false)}>
+              <Text style={styles.cancelBtn}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -205,4 +278,19 @@ const styles = StyleSheet.create({
   footer: { alignItems: "center", marginTop: 20 },
   footerText: { color: Colors.secondary },
   link: { color: Colors.primary, fontWeight: "bold" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "#000a",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    backgroundColor: "#232323",
+    borderRadius: 16,
+    padding: 32,
+    width: "85%",
+    alignItems: "center",
+  },
+  modalText: { color: "#fff", fontSize: 16, textAlign: "center", marginBottom: 12 },
+  cancelBtn: { color: "#aaa", fontSize: 16, marginTop: 16 },
 });
