@@ -78,30 +78,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return result;
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      // Check if device supports Google Play services
-      await GoogleSignin.hasPlayServices();
-      
-      // Sign in with Google
-      const { idToken } = await GoogleSignin.signIn();
-      
-      if (!idToken) {
-        throw new Error('Failed to get ID token from Google');
-      }
+const signInWithGoogle = async () => {
+  try {
+    // Check if device supports Google Play services
+    await GoogleSignin.hasPlayServices();
 
-      // Sign in to Supabase with Google token
-      const result = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: idToken,
-      });
+    // Sign in with Google
+    const userInfo = await GoogleSignin.signIn();
+    
+    // Get the ID token from the correct property
+    const idToken = userInfo.idToken;
 
-      return result;
-    } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
-      return { error };
+    if (!idToken) {
+      throw new Error('Failed to get ID token from Google');
     }
-  };
+
+    // Sign in to Supabase with Google token
+    const result = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
+
+    return result;
+  } catch (error: any) {
+    console.error('Google Sign-In Error:', error);
+    return { error };
+  }
+};
 
   const signOut = async () => {
     try {
