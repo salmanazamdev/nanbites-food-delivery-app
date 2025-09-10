@@ -27,7 +27,7 @@ type RootStackParamList = {
 
 export default function LoginScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -108,6 +108,25 @@ export default function LoginScreen() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+  setLoading(true);
+  try {
+    const { error } = await signInWithGoogle();
+    
+    if (error) {
+      Alert.alert("Google Sign-In Failed", error.message || "Something went wrong");
+    } else {
+      await AsyncStorage.setItem("hasLaunched", "true");
+      // Navigation will be handled automatically by AuthContext
+    }
+  } catch (error) {
+    console.error('Google login error:', error);
+    Alert.alert("Error", "Failed to sign in with Google");
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <ScrollView>
     <View style={styles.container}>
@@ -169,7 +188,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Social login buttons */}
-        <TouchableOpacity style={styles.socialBtn}>
+        <TouchableOpacity style={styles.socialBtn} onPress={handleGoogleLogin}>
           <Image source={require("@/assets/images/onboarding/google.png")} style={styles.icon} />
           <Text style={styles.socialText}>Login with Google</Text>
         </TouchableOpacity>
