@@ -9,7 +9,7 @@ import {
 export const configureGoogleSignIn = () => {
   GoogleSignin.configure({
     webClientId: GOOGLE_WEB_CLIENT_ID,
-    iosClientId: Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : undefined,
+    // iosClientId: Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : undefined,
     androidClientId: Platform.OS === 'android' ? GOOGLE_ANDROID_CLIENT_ID : undefined,
     offlineAccess: true,
   });
