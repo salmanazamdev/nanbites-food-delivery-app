@@ -86,20 +86,22 @@ const signInWithGoogle = async () => {
     // Sign in with Google
     const userInfo = await GoogleSignin.signIn();
     
-    // Get the ID token from the correct property
-    const idToken = userInfo.idToken;
-
-    if (!idToken) {
-      throw new Error('Failed to get ID token from Google');
+   // idToken is at userInfo.data.idToken
+    if (userInfo.data?.idToken) {
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: userInfo.data.idToken,
+      });
+      
+      if (error) {
+        console.error('Supabase auth error:', error);
+        return { error };
+      }
+      
+      return { data };
+    } else {
+      throw new Error('No ID token present!');
     }
-
-    // Sign in to Supabase with Google token
-    const result = await supabase.auth.signInWithIdToken({
-      provider: 'google',
-      token: idToken,
-    });
-
-    return result;
   } catch (error: any) {
     console.error('Google Sign-In Error:', error);
     return { error };
