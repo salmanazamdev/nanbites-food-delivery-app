@@ -27,7 +27,7 @@ type RootStackParamList = {
 
 export default function SignupScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -100,6 +100,26 @@ export default function SignupScreen() {
     } catch (error) {
       console.log(error);
       setFingerprintStatus("fail");
+    }
+  };
+
+  // Handle GOOGLE signup
+    const handleGoogleSignup = async () => {
+    setLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      
+      if (error) {
+        Alert.alert("Google Sign-Up Failed", error.message || "Something went wrong");
+      } else {
+        await AsyncStorage.setItem("hasLaunched", "true");
+        // User will be automatically signed in
+      }
+    } catch (error) {
+      console.error('Google signup error:', error);
+      Alert.alert("Error", "Failed to sign up with Google");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,7 +200,7 @@ export default function SignupScreen() {
         </View>
 
         {/* Social login buttons */}
-        <TouchableOpacity style={styles.socialBtn}>
+        <TouchableOpacity style={styles.socialBtn} onPress={handleGoogleSignup}>
           <Image source={require("@/assets/images/onboarding/google.png")} style={styles.icon} />
           <Text style={styles.socialText}>Sign up with Google</Text>
         </TouchableOpacity>
