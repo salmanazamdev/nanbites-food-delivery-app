@@ -2,20 +2,19 @@ import { supabase } from '@/lib/supabase';
 
 export interface Category {
   id: string;
-  name: string;
+  category_name: string;
+  category_description: string;
   image_url?: string;
-  icon_name?: string;
-  is_active: boolean;
-  sort_order: number;
 }
 
 export interface Restaurant {
   id: string;
-  name: string;
-  description?: string;
-  image_url?: string;
-  cover_image_url?: string;
+  restaurant_name: string;
   address: string;
+  phone: string;
+  email: string;
+  category_id: string;
+  image_url?: string;
   rating: number;
   total_reviews: number;
   delivery_fee: number;
@@ -23,7 +22,7 @@ export interface Restaurant {
   delivery_time: string;
   is_open: boolean;
   is_featured: boolean;
-  categories?: Category[];
+  category?: Category;
 }
 
 export interface MenuItem {
@@ -31,14 +30,24 @@ export interface MenuItem {
   restaurant_id: string;
   name: string;
   description?: string;
-  image_url?: string;
   price: number;
-  original_price?: number;
+  image_url?: string;
   is_vegetarian: boolean;
-  is_vegan: boolean;
-  is_spicy: boolean;
   is_popular: boolean;
   is_available: boolean;
+}
+
+export interface CartItem {
+  id: string;
+  user_id: string;
+  menu_item_id: string;
+  restaurant_id: string;
+  quantity: number;
+  price: number;
+  total_price: number;
+  note?: string;
+  menu_item?: MenuItem;
+  restaurant?: Restaurant;
 }
 
 class RestaurantService {
@@ -47,8 +56,7 @@ class RestaurantService {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+      .order('category_name', { ascending: true });
 
     return { data, error };
   }
@@ -59,9 +67,7 @@ class RestaurantService {
       .from('restaurants')
       .select(`
         *,
-        categories:restaurant_categories(
-          category:categories(*)
-        )
+        category:categories(*)
       `)
       .eq('is_featured', true)
       .eq('is_open', true)
@@ -77,9 +83,9 @@ class RestaurantService {
       .from('restaurants')
       .select(`
         *,
-        restaurant_categories!inner(category_id)
+        category:categories(*)
       `)
-      .eq('restaurant_categories.category_id', categoryId)
+      .eq('category_id', categoryId)
       .eq('is_open', true)
       .order('rating', { ascending: false });
 
@@ -90,8 +96,11 @@ class RestaurantService {
   async searchRestaurants(query: string): Promise<{ data: Restaurant[] | null; error: any }> {
     const { data, error } = await supabase
       .from('restaurants')
-      .select('*')
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+      .select(`
+        *,
+        category:categories(*)
+      `)
+      .or(`restaurant_name.ilike.%${query}%,address.ilike.%${query}%`)
       .eq('is_open', true)
       .order('rating', { ascending: false });
 
@@ -104,9 +113,7 @@ class RestaurantService {
       .from('restaurants')
       .select(`
         *,
-        categories:restaurant_categories(
-          category:categories(*)
-        )
+        category:categories(*)
       `)
       .eq('id', id)
       .single();
@@ -127,19 +134,193 @@ class RestaurantService {
     return { data, error };
   }
 
-  // Get nearby restaurants (you'll need to implement location logic)
-  async getNearbyRestaurants(lat: number, lng: number, radius: number = 10): Promise<{ data: Restaurant[] | null; error: any }> {
-    // For now, just return all restaurants
-    // You can implement proper geolocation filtering later
+  // Get all restaurants
+  async getAllRestaurants(): Promise<{ data: Restaurant[] | null; error: any }> {
     const { data, error } = await supabase
       .from('restaurants')
-      .select('*')
+      .select(`
+        *,
+        category:categories(*)
+      `)
       .eq('is_open', true)
       .order('rating', { ascending: false })
       .limit(20);
 
     return { data, error };
   }
+
+  // Add to favorites
+  async addToFavorites(restaurantId: string): Promise<{ error: any }> {
+    const { error } = await supabase
+      .from('user_favorites')
+      .insert({
+        restaurant_id: restaurantId
+      });
+
+    return { error };
+  }
+
+  // Remove from favorites
+  async removeFromFavorites(restaurantId: string): Promise<{ error: any }> {
+    const { error } = await supabase
+      .from('user_favorites')
+      .delete()
+      .eq('restaurant_id', restaurantId);
+
+    return { error };
+  }
+
+  // Check if restaurant is in favorites
+  async isFavorite(restaurantId: string): Promise<{ data: boolean; error: any }> {
+    const { data, error } = await supabase
+      .from('user_favorites')
+      .select('id')
+      .eq('restaurant_id', restaurantId)
+      .single();
+
+    return { data: !!data, error: error?.code === 'PGRST116' ? null : error };
+  }
+
+  // Get user's favorite restaurants
+  async getUserFavorites(): Promise<{ data: Restaurant[] | null; error: any }> {
+    const { data, error } = await supabase
+      .from('user_favorites')
+      .select(`
+        restaurant:restaurants(
+          *,
+          category:categories(*)
+        )
+      `);
+
+    if (error) return { data: null, error };
+
+    const restaurants = data?.map(item => item.restaurant).filter(Boolean) || [];
+    return { data: restaurants as Restaurant[], error: null };
+  }
 }
 
 export const restaurantService = new RestaurantService();
+
+// Cart Service
+class CartService {
+  // Add item to cart
+  async addToCart(menuItemId: string, restaurantId: string, quantity: number = 1, note?: string): Promise<{ error: any }> {
+    // First get the menu item details to get the price
+    const { data: menuItem, error: menuError } = await supabase
+      .from('menu_items')
+      .select('price')
+      .eq('id', menuItemId)
+      .single();
+
+    if (menuError) return { error: menuError };
+
+    const price = menuItem.price;
+    const totalPrice = price * quantity;
+
+    // Check if item already exists in cart
+    const { data: existingItem } = await supabase
+      .from('cart_items')
+      .select('*')
+      .eq('menu_item_id', menuItemId)
+      .single();
+
+    if (existingItem) {
+      // Update existing item
+      const { error } = await supabase
+        .from('cart_items')
+        .update({
+          quantity: existingItem.quantity + quantity,
+          total_price: (existingItem.quantity + quantity) * price,
+          note
+        })
+        .eq('id', existingItem.id);
+
+      return { error };
+    } else {
+      // Insert new item
+      const { error } = await supabase
+        .from('cart_items')
+        .insert({
+          menu_item_id: menuItemId,
+          restaurant_id: restaurantId,
+          quantity,
+          price,
+          total_price: totalPrice,
+          note
+        });
+
+      return { error };
+    }
+  }
+
+  // Get cart items
+  async getCartItems(): Promise<{ data: CartItem[] | null; error: any }> {
+    const { data, error } = await supabase
+      .from('cart_items')
+      .select(`
+        *,
+        menu_item:menu_items(*),
+        restaurant:restaurants(restaurant_name, image_url)
+      `)
+      .order('created_at', { ascending: true });
+
+    return { data, error };
+  }
+
+  // Update cart item quantity
+  async updateCartItem(cartItemId: string, quantity: number): Promise<{ error: any }> {
+    const { data: cartItem, error: fetchError } = await supabase
+      .from('cart_items')
+      .select('price')
+      .eq('id', cartItemId)
+      .single();
+
+    if (fetchError) return { error: fetchError };
+
+    const { error } = await supabase
+      .from('cart_items')
+      .update({
+        quantity,
+        total_price: cartItem.price * quantity
+      })
+      .eq('id', cartItemId);
+
+    return { error };
+  }
+
+  // Remove item from cart
+  async removeFromCart(cartItemId: string): Promise<{ error: any }> {
+    const { error } = await supabase
+      .from('cart_items')
+      .delete()
+      .eq('id', cartItemId);
+
+    return { error };
+  }
+
+  // Clear cart
+  async clearCart(): Promise<{ error: any }> {
+    const { error } = await supabase
+      .from('cart_items')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all items
+
+    return { error };
+  }
+
+  // Get cart total
+  async getCartTotal(): Promise<{ data: { total: number; itemCount: number } | null; error: any }> {
+    const { data, error } = await supabase
+      .from('cart_items')
+      .select('total_price, quantity');
+
+    if (error) return { data: null, error };
+
+    const total = data.reduce((sum, item) => sum + item.total_price, 0);
+    const itemCount = data.reduce((sum, item) => sum + item.quantity, 0);
+
+    return { data: { total, itemCount }, error: null };
+  }
+}
+
+export const cartService = new CartService();
