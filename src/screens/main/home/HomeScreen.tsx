@@ -47,7 +47,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({ category, onPress }) => (
         </View>
       )}
     </View>
-    <Text style={styles.categoryName}>{category.name}</Text>
+            <Text style={styles.categoryName}>{category.category_name}</Text>
   </TouchableOpacity>
 );
 
@@ -370,4 +370,5 @@ const styles = StyleSheet.create({
   restaurantDescription: {
     fontSize: 14,
     color: Colors.secondary,
-    marginBottom: 8,
+    marginBottom: 8,}
+  });
