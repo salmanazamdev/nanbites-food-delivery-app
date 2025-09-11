@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   FlatList,
   Image,
   ActivityIndicator,
@@ -18,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import Colors from "@/utils/constants/colors";
 import { useAuth } from "@/context/AuthContext";
 import { restaurantService, Category, Restaurant } from "@/services/api/restaurantService";
+import { discountService, Discount } from "@/services/api/discountService";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -25,6 +25,7 @@ export default function HomeScreen() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredRestaurants, setFeaturedRestaurants] = useState<Restaurant[]>([]);
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -34,15 +35,20 @@ export default function HomeScreen() {
 
   const loadData = async () => {
     try {
-      const [catRes, restRes] = await Promise.all([
+      const [catRes, restRes, discRes] = await Promise.all([
         restaurantService.getCategories(),
         restaurantService.getFeaturedRestaurants(),
+        discountService.getActiveDiscounts(),
       ]);
+
       if (catRes.error) Alert.alert("Error", "Failed to load categories");
       else setCategories(catRes.data || []);
 
       if (restRes.error) Alert.alert("Error", "Failed to load restaurants");
       else setFeaturedRestaurants(restRes.data || []);
+
+      if (discRes.error) Alert.alert("Error", "Failed to load discounts");
+      else setDiscounts(discRes.data || []);
     } catch (err) {
       console.error(err);
       Alert.alert("Error", "Something went wrong");
@@ -75,7 +81,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View style={styles.locationRow}>
           <Icon name="location-outline" size={20} color={Colors.primary} />
-          <Text style={styles.locationText}>Current Location</Text>
+          <Text style={styles.locationText}>Times Square</Text>
         </View>
         <TouchableOpacity>
           <Icon name="notifications-outline" size={24} color={Colors.primary} />
@@ -93,6 +99,29 @@ export default function HomeScreen() {
         <Icon name="search-outline" size={20} color={Colors.secondary} />
         <Text style={styles.searchPlaceholder}>Search for restaurants, food...</Text>
       </TouchableOpacity>
+
+      {/* Discounts */}
+      {discounts.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Special Offers</Text>
+          <FlatList
+            horizontal
+            data={discounts}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.discountBanner}>
+                <Image source={{ uri: item.image_url }} style={styles.discountImage} />
+                <View style={styles.discountTextContainer}>
+                  <Text style={styles.discountText}>{item.discount_percent}% OFF</Text>
+                  <Text style={styles.discountSubText}>{item.description}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+          />
+        </View>
+      )}
 
       {/* Categories */}
       <View style={styles.section}>
@@ -117,7 +146,7 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* Featured */}
+      {/* Featured Restaurants */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Featured Restaurants</Text>
         {featuredRestaurants.map((rest) => (
@@ -152,6 +181,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, color: Colors.secondary },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -161,9 +191,11 @@ const styles = StyleSheet.create({
   },
   locationRow: { flexDirection: "row", alignItems: "center" },
   locationText: { marginLeft: 6, color: Colors.primary, fontWeight: "500" },
+
   welcomeContainer: { paddingHorizontal: 20, marginBottom: 20 },
   welcomeText: { fontSize: 22, fontWeight: "bold", color: Colors.primary },
   subtitleText: { fontSize: 15, color: Colors.secondary },
+
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -174,6 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   searchPlaceholder: { marginLeft: 10, color: Colors.secondary },
+
   section: { marginBottom: 24 },
   sectionTitle: {
     fontSize: 18,
@@ -182,10 +215,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: Colors.primary,
   },
+
+  // Discounts
+  discountBanner: {
+    width: 280,
+    height: 160,
+    borderRadius: 12,
+    marginRight: 16,
+    overflow: "hidden",
+    position: "relative",
+  },
+  discountImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 12,
+  },
+  discountTextContainer: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+  },
+  discountText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  discountSubText: {
+    fontSize: 14,
+    color: "#fff",
+    marginTop: 4,
+  },
+
   categoriesList: { paddingHorizontal: 20 },
   categoryItem: { alignItems: "center", marginRight: 16 },
   categoryImage: { width: 60, height: 60, borderRadius: 30, marginBottom: 6 },
   categoryName: { fontSize: 12, color: Colors.primary },
+
   restaurantCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
