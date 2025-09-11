@@ -5,8 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "@/utils/constants/colors";
 
-// Import your screens (we'll create these next)
-import HomeScreen from "../screens/main/home/HomeScreen";
+import HomeScreen from "../screens/main/home/HomeScreen"; 
 // import SearchScreen from "../screens/main/search/SearchScreen";
 // import CartScreen from "../screens/main/cart/CartScreen";
 // import OrdersScreen from "../screens/main/orders/OrdersScreen";
