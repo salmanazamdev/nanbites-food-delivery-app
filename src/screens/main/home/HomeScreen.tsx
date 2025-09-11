@@ -372,3 +372,5 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     marginBottom: 8,}
   });
+
+  export default HomeScreen;
