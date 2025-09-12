@@ -10,7 +10,7 @@ import HomeScreen from "../screens/main/home/HomeScreen";
 // import CartScreen from "../screens/main/cart/CartScreen";
 // import OrdersScreen from "../screens/main/orders/OrdersScreen";
 // import ProfileScreen from "../screens/main/profile/ProfileScreen";
-// import RestaurantDetailScreen from "../screens/main/restaurant/RestaurantDetailScreen";
+import RestaurantDetailScreen from "../screens/main/restaurant/RestaurantDetailScreen";
 // import CategoryRestaurantsScreen from "../screens/main/restaurant/CategoryRestaurantsScreen";
 
 const Tab = createBottomTabNavigator();
@@ -20,8 +20,8 @@ const Stack = createNativeStackNavigator();
 const HomeStackNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="HomeScreen" component={HomeScreen} />
-    {/* <Stack.Screen name="RestaurantDetail" component={RestaurantDetailScreen} />
-    <Stack.Screen name="CategoryRestaurants" component={CategoryRestaurantsScreen} /> */}
+    <Stack.Screen name="RestaurantDetail" component={RestaurantDetailScreen} />
+    {/* <Stack.Screen name="CategoryRestaurants" component={CategoryRestaurantsScreen} /> */}
   </Stack.Navigator>
 );
 
@@ -29,7 +29,7 @@ const HomeStackNavigator = () => (
 // const SearchStackNavigator = () => (
 //   <Stack.Navigator screenOptions={{ headerShown: false }}>
 //     {/* <Stack.Screen name="SearchScreen" component={SearchScreen} />
-//     <Stack.Screen name="RestaurantDetail" component={RestaurantDetailScreen} /> */}
+    // <Stack.Screen name="RestaurantDetail" component={RestaurantDetailScreen} />
 //   </Stack.Navigator>
 // );
 
