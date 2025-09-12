@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   restaurantImage: { width: "100%", height: 150 },
   restaurantInfo: { padding: 12 },
-  restaurantName: { fontSize: 16, fontWeight: "bold", marginBottom: 4 },
+  restaurantName: { fontSize: 16, fontWeight: "bold", marginBottom: 4, color: Colors.text, },
   metaRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
   rating: { marginLeft: 4, fontSize: 13, color: Colors.secondary },
   deliveryTime: { marginLeft: 8, fontSize: 13, color: Colors.secondary },
