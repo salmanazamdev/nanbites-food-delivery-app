@@ -16,7 +16,7 @@ export default function SplashScreen() {
   
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("WelcomeScreen"); // Navigate to WelcomeScreen screen
+      navigation.replace("WelcomeScreen"); 
     }, 2500);
 
     return () => clearTimeout(timer);
@@ -33,7 +33,7 @@ export default function SplashScreen() {
     >
       {/* App Logo */}
       <Image
-        source={require("@/assets/images/onboarding/logo2.png")}
+        source={require("@/assets/images/onboarding/nanlogobg.png")}
         style={{ width: 240, height: 240, marginBottom: 20 }}
         resizeMode="contain"
       />
