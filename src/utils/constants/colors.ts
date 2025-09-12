@@ -1,11 +1,12 @@
 const Colors = {
-  primary: "#F59E0B",   // Warm golden (naan bread color)
-  secondary: "#4B5563", // Neutral gray for text/icons
-  accent: "#10B981",    // Fresh green for garnish/leaf
-  background: "#FFFFFF", 
-  backgroundLight: "#FFF7ED", // Light warm background
-  text: "#1F2937",      // Strong dark gray
-  textSecondary: "#6B7280", // Softer secondary text
+  primary: "#F59E0B",   // Brighter golden amber (fresh naan color, modern feel)
+  secondary: "#64748B", // Softer slate gray (cleaner than harsh gray)
+  accent: "#22C55E",    // Vibrant green (fresh, modern garnish/leaf)
+  background: "#FFFAF3", // Slightly creamier background for warmth
+  backgroundLight: "#FFF4E6", // Lighter warm variant for cards/sections
+  text: "#1E293B",      // Dark slate gray (modern, better contrast than pure black)
+  textSecondary: "#94A3B8", // Muted blue-gray (subtle modern secondary text)
 };
+
 
 export default Colors;
