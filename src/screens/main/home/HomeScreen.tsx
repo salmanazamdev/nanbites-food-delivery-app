@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   locationRow: { flexDirection: "row", alignItems: "center" },
@@ -221,9 +221,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 160,
     borderRadius: 12,
-    marginRight: 16,
     overflow: "hidden",
-    position: "relative",
   },
   discountImage: {
     width: "100%",
