@@ -1,11 +1,11 @@
 const Colors = {
-  primary: "#FF6B35", // Orange from logo
-  secondary: "#4A5568", // Better contrast for secondary text
-  accent: "#38A169", // Green (leaf detail)
-  background: "#FFFFFF",
-  backgroundLight: "#F7FAFC",
-  text: "#2D3748", // Dark text for better readability
-  textSecondary: "#718096", // Lighter text for secondary information
+  primary: "#F59E0B",   // Warm golden (naan bread color)
+  secondary: "#4B5563", // Neutral gray for text/icons
+  accent: "#10B981",    // Fresh green for garnish/leaf
+  background: "#FFFFFF", 
+  backgroundLight: "#FFF7ED", // Light warm background
+  text: "#1F2937",      // Strong dark gray
+  textSecondary: "#6B7280", // Softer secondary text
 };
 
 export default Colors;

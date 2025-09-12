@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   locationRow: { flexDirection: "row", alignItems: "center" },
-  locationText: { marginLeft: 6, color: Colors.primary, fontWeight: "500" },
+  locationText: { marginLeft: 6, color: Colors.secondary, fontWeight: "500" },
 
   welcomeContainer: { paddingHorizontal: 20, marginBottom: 20 },
   welcomeText: { fontSize: 22, fontWeight: "bold", color: Colors.primary },
@@ -212,13 +212,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginHorizontal: 20,
-    marginBottom: 16,
+    marginBottom: 12,
     color: Colors.primary,
   },
 
   // Discounts
   discountBanner: {
-    width: 280,
+    width: 320,
     height: 160,
     borderRadius: 12,
     overflow: "hidden",
@@ -245,9 +245,9 @@ const styles = StyleSheet.create({
   },
 
   categoriesList: { paddingHorizontal: 20 },
-  categoryItem: { alignItems: "center", marginRight: 27 },
-  categoryImage: { width: 60, height: 60, marginBottom: 6 },
-  categoryName: { fontSize: 12, color: Colors.primary },
+  categoryItem: { alignItems: "center", marginRight: 30 },
+  categoryImage: { width: 55, height: 55, marginBottom: 6, },
+  categoryName: { fontSize: 12, color: Colors.secondary },
 
   restaurantCard: {
     backgroundColor: "#fff",
