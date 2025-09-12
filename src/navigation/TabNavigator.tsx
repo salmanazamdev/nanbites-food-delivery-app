@@ -11,7 +11,7 @@ import HomeScreen from "../screens/main/home/HomeScreen";
 // import OrdersScreen from "../screens/main/orders/OrdersScreen";
 // import ProfileScreen from "../screens/main/profile/ProfileScreen";
 import RestaurantDetailScreen from "../screens/main/restaurant/RestaurantDetailScreen";
-// import CategoryRestaurantsScreen from "../screens/main/restaurant/CategoryRestaurantsScreen";
+import CategoryRestaurantsScreen from "../screens/main/restaurant/CategoryRestaurantsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -21,7 +21,7 @@ const HomeStackNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="HomeScreen" component={HomeScreen} />
     <Stack.Screen name="RestaurantDetail" component={RestaurantDetailScreen} />
-    {/* <Stack.Screen name="CategoryRestaurants" component={CategoryRestaurantsScreen} /> */}
+    <Stack.Screen name="CategoryRestaurants" component={CategoryRestaurantsScreen} />
   </Stack.Navigator>
 );
 
