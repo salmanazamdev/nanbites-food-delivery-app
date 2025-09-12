@@ -245,8 +245,8 @@ const styles = StyleSheet.create({
   },
 
   categoriesList: { paddingHorizontal: 20 },
-  categoryItem: { alignItems: "center", marginRight: 16 },
-  categoryImage: { width: 60, height: 60, borderRadius: 30, marginBottom: 6 },
+  categoryItem: { alignItems: "center", marginRight: 27 },
+  categoryImage: { width: 60, height: 60, marginBottom: 6 },
   categoryName: { fontSize: 12, color: Colors.primary },
 
   restaurantCard: {
