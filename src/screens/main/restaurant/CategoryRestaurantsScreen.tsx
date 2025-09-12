@@ -3,8 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
+  FlatList,
   Image,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
@@ -17,22 +17,22 @@ import { restaurantService, Restaurant } from "@/services/api/restaurantService"
 export default function CategoryRestaurantsScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation();
-  const { restaurantId } = route.params;
+  const { categoryId } = route.params;
 
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadRestaurant();
-  }, [restaurantId]);
+    loadRestaurants();
+  }, [categoryId]);
 
-  const loadRestaurant = async () => {
+  const loadRestaurants = async () => {
     try {
-      const res = await restaurantService.getRestaurantById(restaurantId);
+      const res = await restaurantService.getRestaurantsByCategory(categoryId);
       if (res.error) {
-        Alert.alert("Error", "Failed to load restaurant details");
+        Alert.alert("Error", "Failed to load restaurants");
       } else {
-        setRestaurant(res.data);
+        setRestaurants(res.data || []);
       }
     } catch (err) {
       console.error(err);
@@ -46,120 +46,92 @@ export default function CategoryRestaurantsScreen() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>Fetching restaurant details...</Text>
-      </View>
-    );
-  }
-
-  if (!restaurant) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Restaurant not found</Text>
+        <Text style={styles.loadingText}>Loading restaurants...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Hero Image with Back + Favorite */}
-      <View style={styles.heroContainer}>
-        <Image source={{ uri: restaurant.image_url }} style={styles.heroImage} />
-        <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-            <Icon name="arrow-back" size={24} color={Colors.background} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Icon name="heart-outline" size={24} color={Colors.background} />
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      {/* 🔥 Updated: Header */}
+      <View style={styles.titleRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+          <Icon name="arrow-back" size={24} color={Colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Restaurants</Text>
       </View>
 
-      {/* Restaurant Info Section */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.restaurantName}>{restaurant.restaurant_name}</Text>
-        <View style={styles.metaRow}>
-          <Icon name="star" size={16} color="#FFD700" />
-          <Text style={styles.rating}>
-            {restaurant.rating} ({restaurant.total_reviews})
-          </Text>
-          <Text style={styles.deliveryTime}>{restaurant.delivery_time}</Text>
-        </View>
-        <Text style={styles.deliveryFee}>
-          Delivery: {restaurant.delivery_fee === 0 ? "Free" : `$${restaurant.delivery_fee}`} •
-          Min: ${restaurant.minimum_order}
-        </Text>
-        <Text style={styles.address}>{restaurant.address}</Text>
-      </View>
-
-      {/* Menu Section */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Menu</Text>
-        {restaurant.menu_items && restaurant.menu_items.length > 0 ? (
-          restaurant.menu_items.map((item) => (
-            <View key={item.id} style={styles.menuItem}>
-              <Image source={{ uri: item.image_url }} style={styles.menuImage} />
-              <View style={styles.menuContent}>
-                <Text style={styles.menuName}>{item.name}</Text>
-                <Text style={styles.menuDesc}>{item.description}</Text>
-                <Text style={styles.menuPrice}>${item.price}</Text>
+      {/* 🔥 Updated: Restaurant Cards */}
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.restaurantCard}
+            onPress={() =>
+              navigation.navigate("RestaurantDetail", { restaurantId: item.id })
+            }
+          >
+            <Image source={{ uri: item.image_url }} style={styles.restaurantImage} />
+            <View style={styles.restaurantInfo}>
+              <Text style={styles.restaurantName}>{item.restaurant_name}</Text>
+              <View style={styles.metaRow}>
+                <Icon name="star" size={14} color="#FFD700" />
+                <Text style={styles.rating}>
+                  {item.rating} ({item.total_reviews})
+                </Text>
+                <Text style={styles.deliveryTime}>{item.delivery_time}</Text>
               </View>
+              <Text style={styles.deliveryFee}>
+                Delivery: {item.delivery_fee === 0 ? "Free" : `$${item.delivery_fee}`} •
+                Min: ${item.minimum_order}
+              </Text>
             </View>
-          ))
-        ) : (
-          <Text style={styles.emptyText}>No items available</Text>
+          </TouchableOpacity>
         )}
-      </View>
-    </ScrollView>
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-
+  container: { flex: 1, backgroundColor: Colors.background, paddingTop: 20 },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, color: Colors.secondary },
 
-  // 🔥 Updated: Hero Image
-  heroContainer: { position: "relative" },
-  heroImage: { width: "100%", height: 220 },
-  topBar: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    right: 20,
+  // 🔥 Updated Header
+  titleRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  iconBtn: {
-    backgroundColor: "rgba(0,0,0,0.4)",
-    padding: 8,
-    borderRadius: 30,
-  },
-
-  // Info Section
-  infoContainer: { padding: 20, backgroundColor: Colors.backgroundLight, borderRadius: 12, margin: 16 },
-  restaurantName: { fontSize: 22, fontWeight: "bold", color: Colors.text, marginBottom: 6 },
-  metaRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
-  rating: { marginLeft: 4, fontSize: 14, color: Colors.secondary },
-  deliveryTime: { marginLeft: 8, fontSize: 14, color: Colors.secondary },
-  deliveryFee: { fontSize: 14, color: Colors.secondary, marginBottom: 6 },
-  address: { fontSize: 14, color: Colors.textSecondary },
-
-  // Menu Section
-  section: { padding: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: "bold", color: Colors.primary, marginBottom: 12 },
-  menuItem: {
-    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
     marginBottom: 16,
+  },
+  iconBtn: { marginRight: 8, padding: 4 },
+  title: { fontSize: 20, fontWeight: "bold", color: Colors.primary },
+
+  // 🔥 Updated Restaurant Card
+  restaurantCard: {
     backgroundColor: Colors.backgroundLight,
     borderRadius: 12,
+    marginBottom: 16,
+    marginHorizontal: 20,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  menuImage: { width: 80, height: 80 },
-  menuContent: { flex: 1, padding: 10 },
-  menuName: { fontSize: 16, fontWeight: "bold", color: Colors.text },
-  menuDesc: { fontSize: 13, color: Colors.textSecondary, marginVertical: 4 },
-  menuPrice: { fontSize: 14, fontWeight: "bold", color: Colors.primary },
-
-  emptyText: { fontSize: 14, color: Colors.secondary, textAlign: "center", marginTop: 10 },
+  restaurantImage: { width: "100%", height: 150 },
+  restaurantInfo: { padding: 12 },
+  restaurantName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+    color: Colors.text,
+  },
+  metaRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
+  rating: { marginLeft: 4, fontSize: 13, color: Colors.secondary },
+  deliveryTime: { marginLeft: 8, fontSize: 13, color: Colors.secondary },
+  deliveryFee: { fontSize: 13, color: Colors.secondary },
 });
