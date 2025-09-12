@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   categoryName: { fontSize: 12, color: Colors.secondary },
 
   restaurantCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.backgroundLight,
     borderRadius: 12,
     marginBottom: 16,
     marginHorizontal: 20,
