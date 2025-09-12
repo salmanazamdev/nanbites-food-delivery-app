@@ -1,4 +1,3 @@
-// src/screens/main/home/HomeScreen.tsx
 import React, { useState, useEffect } from "react";
 import {
   View,
