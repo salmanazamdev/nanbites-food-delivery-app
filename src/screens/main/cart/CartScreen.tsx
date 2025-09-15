@@ -81,7 +81,7 @@ export default function CartScreen() {
         <View style={styles.titleRowInside}>
           <Text style={styles.title}>{item.menu_item?.name}</Text>
           <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.trashBtnSingle}>
-            <Icon name="trash-outline" size={20} color="gray" />
+            <Icon name="trash-outline" size={20} color="red" />
           </TouchableOpacity>
         </View>
         <Text style={styles.text}>Restaurant: {item.restaurant?.restaurant_name}</Text>
@@ -191,7 +191,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   trashBtnSingle: {
-    color: Colors.primary,
+    padding: 4,
+    borderRadius: 4,
   },
   text: { fontSize: 14, marginBottom: 2, color: Colors.textSecondary },
 
