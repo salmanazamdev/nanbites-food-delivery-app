@@ -13,13 +13,20 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Colors from "@/utils/constants/colors";
 import { useAuth } from "@/context/AuthContext";
 import { restaurantService, Category, Restaurant } from "@/services/api/restaurantService";
 import { discountService, Discount } from "@/services/api/discountService";
+import { RootStackParamList } from "@/navigation/types"; // <-- New import
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  // --------------------------
+  // ✅ Updated navigation type
+  // --------------------------
+  type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   const { user } = useAuth();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -76,30 +83,37 @@ export default function HomeScreen() {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-{/* Header */}
-<View style={styles.header}>
-  <View style={styles.locationRow}>
-    <Icon name="location-outline" size={20} color={Colors.primary} />
-    <Text style={styles.locationText}>Times Square</Text>
-  </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.locationRow}>
+          <Icon name="location-outline" size={20} color={Colors.primary} />
+          <Text style={styles.locationText}>Times Square</Text>
+        </View>
 
-  <View style={styles.headerIcons}>
+        <View style={styles.headerIcons}>
+          {/* Cart */}
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => {
+              // --------------------------
+              // ✅ Ensure userId is defined before navigating
+              // --------------------------
+              if (user?.id) {
+                navigation.navigate("Cart", { userId: user.id });
+              } else {
+                Alert.alert("Error", "User not logged in");
+              }
+            }}
+          >
+            <Icon name="cart-outline" size={26} color={Colors.primary} />
+          </TouchableOpacity>
 
-    {/* Cart */}
-<TouchableOpacity
-  style={styles.iconBtn}
-  onPress={() => navigation.navigate("Cart", { userId: user?.id })}
->
-  <Icon name="cart-outline" size={26} color={Colors.primary} />
-</TouchableOpacity>
-
-        {/* Notifications */}
-    <TouchableOpacity style={styles.iconBtn}>
-      <Icon name="notifications-outline" size={26} color={Colors.primary} />
-    </TouchableOpacity>
-
-  </View>
-</View>
+          {/* Notifications */}
+          <TouchableOpacity style={styles.iconBtn}>
+            <Icon name="notifications-outline" size={26} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Welcome */}
       <View style={styles.welcomeContainer}>
@@ -147,9 +161,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.categoryItem}
-              onPress={() =>
-                navigation.navigate("CategoryRestaurants", { categoryId: item.id })
-              }
+              onPress={() => navigation.navigate("CategoryRestaurants", { categoryId: item.id })}
             >
               <Image source={{ uri: item.image_url }} style={styles.categoryImage} />
               <Text style={styles.categoryName}>{item.category_name}</Text>
@@ -166,9 +178,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             key={rest.id}
             style={styles.restaurantCard}
-            onPress={() =>
-              navigation.navigate("RestaurantDetail", { restaurantId: rest.id })
-            }
+            onPress={() => navigation.navigate("RestaurantDetail", { restaurantId: rest.id })}
           >
             <Image source={{ uri: rest.image_url }} style={styles.restaurantImage} />
             <View style={styles.restaurantInfo}>
