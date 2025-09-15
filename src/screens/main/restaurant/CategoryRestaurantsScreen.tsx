@@ -11,17 +11,12 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Colors from "@/utils/constants/colors";
 import { restaurantService, Restaurant } from "@/services/api/restaurantService";
-import { RootStackParamList } from "@/navigation/types"; // <-- Add this import
-
-
-type CategoryRestaurantsNavigationProp = NativeStackNavigationProp<RootStackParamList, "CategoryRestaurants">;
 
 export default function CategoryRestaurantsScreen() {
-  const navigation = useNavigation<CategoryRestaurantsNavigationProp>();
-  const route = useRoute();
+  const route = useRoute<any>();
+  const navigation = useNavigation();
   const { categoryId } = route.params;
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
