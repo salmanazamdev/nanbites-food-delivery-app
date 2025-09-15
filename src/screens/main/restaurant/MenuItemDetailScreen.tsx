@@ -5,11 +5,12 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ScrollView,
   TextInput,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import Colors from "@/utils/constants/colors";
@@ -19,7 +20,7 @@ import { cartService } from "@/services/api/restaurantService";
 export default function MenuItemDetailScreen() {
   const route = useRoute<any>();
   const navigation = useNavigation();
-  const { itemId, restaurantId } = route.params; // passed from RestaurantDetail
+  const { itemId, restaurantId } = route.params;
 
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,144 +73,166 @@ export default function MenuItemDetailScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 🖼 Image + Back/Fav buttons */}
-      <View style={styles.imageWrapper}>
-        <Image source={{ uri: item.image_url }} style={styles.image} />
-        <TouchableOpacity
-          style={styles.topLeftIcon}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-back" size={26} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.topRightIcon}>
-          <Icon name="heart-outline" size={26} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      {/* ℹ️ Info */}
-      <View style={styles.infoSection}>
-        <Text style={styles.title}>{item.name}</Text>
-        <Text style={styles.desc}>{item.description}</Text>
-      </View>
-
-      {/* 🔢 Quantity */}
-      <View style={styles.quantityRow}>
-        <TouchableOpacity
-          style={styles.qtyBtn}
-          onPress={() => setQuantity(Math.max(1, quantity - 1))}
-        >
-          <Icon name="remove" size={22} color={Colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.qtyText}>{quantity}</Text>
-        <TouchableOpacity
-          style={styles.qtyBtn}
-          onPress={() => setQuantity(quantity + 1)}
-        >
-          <Icon name="add" size={22} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      {/* 📝 Note */}
-      <TextInput
-        style={styles.noteInput}
-        placeholder="Note to Restaurant (optional)"
-        value={note}
-        onChangeText={setNote}
-      />
-
-      {/* 🛒 Add to Cart */}
-      <TouchableOpacity style={styles.greenBtn} onPress={handleAddToCart}>
-        <Text style={styles.greenBtnText}>
-          Add to Cart - ${(item.price * quantity).toFixed(2)}
-        </Text>
-      </TouchableOpacity>
-
-      {/* ✅ Checkout */}
-      <TouchableOpacity
-        style={styles.checkBtn}
-        onPress={() => navigation.navigate("Cart")}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 30 }}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.checkBtnText}>Checkout your cart</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* 🖼 Image + Back/Fav buttons */}
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: item.image_url }} style={styles.image} />
+          <TouchableOpacity
+            style={styles.topLeftIcon}
+            onPress={() => navigation.goBack()}
+          >
+            <Icon name="arrow-back" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.topRightIcon}>
+            <Icon name="heart-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* ℹ️ Info */}
+        <View style={styles.infoSection}>
+          <Text style={styles.title}>{item.name}</Text>
+          <Text style={styles.desc}>{item.description}</Text>
+        </View>
+
+        {/* 🔢 Quantity */}
+        <View style={styles.quantityRow}>
+          <TouchableOpacity
+            style={styles.qtyBtn}
+            onPress={() => setQuantity(Math.max(1, quantity - 1))}
+          >
+            <Icon name="remove" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+          <Text style={styles.qtyText}>{quantity}</Text>
+          <TouchableOpacity
+            style={styles.qtyBtn}
+            onPress={() => setQuantity(quantity + 1)}
+          >
+            <Icon name="add" size={20} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* 📝 Note */}
+        <TextInput
+          style={styles.noteInput}
+          placeholder="Note to Restaurant (optional)"
+          placeholderTextColor={Colors.textSecondary}
+          value={note}
+          onChangeText={setNote}
+        />
+
+          {/* 🛒 Add to Cart */}
+          <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
+            <Text style={styles.addToCartText}>
+              Add to Cart • ${(item.price * quantity).toFixed(2)}
+            </Text>
+          </TouchableOpacity>
+
+          {/* ✅ Checkout */}
+          <TouchableOpacity
+            style={styles.goToCartBtn}
+            onPress={() => navigation.navigate("Cart")}
+          >
+            <Text style={styles.goToCartText}>Go to Cart</Text>
+          </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background, marginTop: 25 },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
+  container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 10, color: Colors.secondary },
 
   imageWrapper: { position: "relative" },
   image: {
     width: "100%",
-    height: 280,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    marginTop: 9,
+    height: 260,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   topLeftIcon: {
     position: "absolute",
-    top: 30,
-    left: 18,
+    top: 20,
+    left: 16,
     backgroundColor: "#0007",
     borderRadius: 20,
-    padding: 4,
+    padding: 6,
   },
   topRightIcon: {
     position: "absolute",
-    top: 30,
-    right: 18,
+    top: 20,
+    right: 16,
     backgroundColor: "#0007",
     borderRadius: 20,
-    padding: 4,
+    padding: 6,
   },
   infoSection: { padding: 18, paddingBottom: 0 },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 10, color: Colors.text },
-  desc: { fontSize: 15, color: Colors.textSecondary, marginBottom: 18 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 6, color: Colors.text },
+  desc: { fontSize: 15, color: Colors.textSecondary, marginBottom: 20 },
 
   quantityRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 18,
+    marginBottom: 18,
   },
   qtyBtn: {
     backgroundColor: Colors.backgroundLight,
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 8,
-    marginHorizontal: 28,
+    marginHorizontal: 20,
   },
-  qtyText: { fontSize: 20, fontWeight: "bold", color: Colors.text },
+  qtyText: { fontSize: 18, fontWeight: "bold", color: Colors.text },
 
   noteInput: {
     backgroundColor: Colors.backgroundLight,
-    borderRadius: 12,
+    borderRadius: 10,
     padding: 14,
     marginHorizontal: 18,
-    marginBottom: 24,
+    marginBottom: 20,
     fontSize: 15,
     color: Colors.text,
   },
 
-  greenBtn: {
-    backgroundColor: Colors.accent,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginHorizontal: 18,
-    marginBottom: 30,
-  },
-  greenBtnText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
+addToCartBtn: {
+  backgroundColor: Colors.accent, 
+  paddingVertical: 16,
+  borderRadius: 14,
+  alignItems: "center",
+  marginHorizontal: 18,
+  marginBottom: 14,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.15,
+  shadowRadius: 4,
+  elevation: 3,
+},
+addToCartText: {
+  color: "#fff",
+  fontSize: 17,
+  fontWeight: "700",
+},
 
-  checkBtn: {
-    backgroundColor: "#e1f1e9cc",
-    padding: 10,
-    borderRadius: 20,
-    alignItems: "center",
-    marginHorizontal: 90,
-    marginBottom: 30,
-  },
-  checkBtnText: { color: Colors.text, fontSize: 15 },
+goToCartBtn: {
+  borderWidth: 1.5,
+  borderColor: Colors.primary,
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: "center",
+  marginHorizontal: 18,
+  marginBottom: 24,
+},
+goToCartText: {
+  color: Colors.primary,
+  fontSize: 16,
+  fontWeight: "600",
+},
+    
 });
