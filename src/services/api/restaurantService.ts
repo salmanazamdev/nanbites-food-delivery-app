@@ -135,6 +135,17 @@ async getRestaurantById(id: string): Promise<{ data: (Restaurant & { menu_items:
     return { data, error };
   }
 
+  // Get single menu item by id
+async getMenuItemById(itemId: string): Promise<{ data: MenuItem | null; error: any }> {
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select("*")
+    .eq("id", itemId)
+    .single();
+
+  return { data, error };
+}
+
   // Get all restaurants
   async getAllRestaurants(): Promise<{ data: Restaurant[] | null; error: any }> {
     const { data, error } = await supabase
