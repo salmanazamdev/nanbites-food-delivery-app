@@ -76,16 +76,30 @@ export default function HomeScreen() {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.locationRow}>
-          <Icon name="location-outline" size={20} color={Colors.primary} />
-          <Text style={styles.locationText}>Times Square</Text>
-        </View>
-        <TouchableOpacity>
-          <Icon name="notifications-outline" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
+{/* Header */}
+<View style={styles.header}>
+  <View style={styles.locationRow}>
+    <Icon name="location-outline" size={20} color={Colors.primary} />
+    <Text style={styles.locationText}>Times Square</Text>
+  </View>
+
+  <View style={styles.headerIcons}>
+
+    {/* Cart */}
+    <TouchableOpacity
+      style={styles.iconBtn}
+      onPress={() => navigation.navigate("CartScreen", { userId: user?.id })}
+    >
+      <Icon name="cart-outline" size={26} color={Colors.primary} />
+    </TouchableOpacity>
+
+        {/* Notifications */}
+    <TouchableOpacity style={styles.iconBtn}>
+      <Icon name="notifications-outline" size={26} color={Colors.primary} />
+    </TouchableOpacity>
+
+  </View>
+</View>
 
       {/* Welcome */}
       <View style={styles.welcomeContainer}>
@@ -188,6 +202,15 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 20,
   },
+
+  headerIcons: {
+  flexDirection: "row",
+  alignItems: "center",
+},
+iconBtn: {
+  marginLeft: 16,
+},
+
   locationRow: { flexDirection: "row", alignItems: "center" },
   locationText: { marginLeft: 6, color: Colors.secondary, fontWeight: "500" },
 
