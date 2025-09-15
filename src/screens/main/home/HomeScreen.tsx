@@ -21,9 +21,7 @@ import { discountService, Discount } from "@/services/api/discountService";
 import { RootStackParamList } from "@/navigation/types"; // <-- New import
 
 export default function HomeScreen() {
-  // --------------------------
-  // ✅ Updated navigation type
-  // --------------------------
+
   type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
