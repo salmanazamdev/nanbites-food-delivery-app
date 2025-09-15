@@ -45,6 +45,7 @@ export default function MenuItemDetailScreen() {
 
   const handleAddToCart = async () => {
     if (!item) return;
+
     try {
       const { error } = await cartService.addToCart(
         item.id,
@@ -57,7 +58,7 @@ export default function MenuItemDetailScreen() {
       Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
     } catch (err) {
       console.error("Error adding to cart:", err);
-      Alert.alert("Error", "Could not add item to cart.");
+      Alert.alert("Error", "Could not add item to cart. Please try again.");
     }
   };
 
@@ -127,7 +128,7 @@ export default function MenuItemDetailScreen() {
       {/* ✅ Checkout */}
       <TouchableOpacity
         style={styles.checkBtn}
-        onPress={() => navigation.navigate("CartScreen")}
+        onPress={() => navigation.navigate("Cart")}
       >
         <Text style={styles.checkBtnText}>Checkout your cart</Text>
       </TouchableOpacity>
