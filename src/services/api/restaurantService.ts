@@ -150,13 +150,14 @@ export const restaurantService = new RestaurantService();
 // Cart Service 
 // =======================
 class CartService {
+  // Add to Cart
   async addToCart(menuItemId: string, restaurantId: string, quantity: number = 1, note?: string) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return { error: "Not logged in" };
 
-    // Get menu item price
+    // ✅ Get menu item price
     const { data: menuItem, error: menuError } = await supabase
       .from("menu_items")
       .select("price")
@@ -167,28 +168,31 @@ class CartService {
     const price = menuItem.price;
     const totalPrice = price * quantity;
 
-    // Check if already exists in user's cart
+    // ✅ Check if item already exists in this user's cart
     const { data: existingItem } = await supabase
       .from("cart_items")
-      .select("*")
+      .select("id, quantity, price, restaurant_id")
       .eq("menu_item_id", menuItemId)
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (existingItem) {
+      // ✅ Make sure we keep restaurant_id when updating
       return await supabase
         .from("cart_items")
         .update({
           quantity: existingItem.quantity + quantity,
           total_price: (existingItem.quantity + quantity) * price,
           note,
+          restaurant_id: restaurantId, // 👈 force-save in case it was missing
         })
         .eq("id", existingItem.id);
     } else {
+      // ✅ Insert new item with restaurant_id
       return await supabase.from("cart_items").insert({
         user_id: user.id,
         menu_item_id: menuItemId,
-        restaurant_id: restaurantId,
+        restaurant_id: restaurantId, // 👈 important!
         quantity,
         price,
         total_price: totalPrice,
@@ -197,19 +201,27 @@ class CartService {
     }
   }
 
-  async getCartItems() {
+  // Get Cart Items (with joins)
+  async getCartItems(): Promise<{ data: CartItem[] | null; error: any }> {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return { data: null, error: "Not logged in" };
 
-    return await supabase
+    const { data, error } = await supabase
       .from("cart_items")
-      .select(`*, menu_item:menu_items(*), restaurant:restaurants(restaurant_name, image_url)`)
-      .eq("user_id", user.id)
+      .select(`
+        *,
+        menu_item:menu_items(*),
+        restaurant:restaurants!cart_items_restaurant_id_fkey(id, restaurant_name, image_url)
+      `)
+      .eq("user_id", user.id) // ✅ only fetch this user's items
       .order("created_at", { ascending: true });
+
+    return { data, error };
   }
 
+  // Update item quantity
   async updateCartItem(cartItemId: string, quantity: number) {
     const { data: cartItem, error: fetchError } = await supabase
       .from("cart_items")
@@ -227,10 +239,12 @@ class CartService {
       .eq("id", cartItemId);
   }
 
+  // Remove a single item
   async removeFromCart(cartItemId: string) {
     return await supabase.from("cart_items").delete().eq("id", cartItemId);
   }
 
+  // Clear entire cart
   async clearCart() {
     const {
       data: { user },
@@ -240,13 +254,17 @@ class CartService {
     return await supabase.from("cart_items").delete().eq("user_id", user.id);
   }
 
+  // Get total summary
   async getCartTotal() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return { data: null, error: "Not logged in" };
 
-    const { data, error } = await supabase.from("cart_items").select("total_price, quantity").eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("cart_items")
+      .select("total_price, quantity")
+      .eq("user_id", user.id);
     if (error) return { data: null, error };
 
     const total = data.reduce((sum, item) => sum + item.total_price, 0);
