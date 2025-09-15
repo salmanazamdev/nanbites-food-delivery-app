@@ -62,6 +62,15 @@ export default function CartScreen() {
     ]);
   };
 
+  const removeItem = async (itemId: string) => {
+    const { error } = await cartService.removeFromCart(itemId);
+    if (error) {
+      Alert.alert("Error", "Failed to remove item");
+    } else {
+      setItems((prev) => prev.filter((i) => i.id !== itemId));
+    }
+  };
+
   const renderItem = ({ item }: { item: CartItem }) => (
     <View style={styles.cartbox}>
       <Image
@@ -69,11 +78,16 @@ export default function CartScreen() {
         style={styles.image}
       />
       <View style={styles.card}>
-        <Text style={styles.title}>{item.menu_item?.name}</Text>
+        <View style={styles.titleRowInside}>
+          <Text style={styles.title}>{item.menu_item?.name}</Text>
+          <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.trashBtnSingle}>
+            <Icon name="trash-outline" size={20} color="gray" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.text}>Restaurant: {item.restaurant?.restaurant_name}</Text>
         <Text style={styles.text}>Quantity: {item.quantity}</Text>
         <Text style={styles.text}>Note: {item.note || "None"}</Text>
-        <Text style={styles.text}>Total Price: ${item.total_price.toFixed(2)}</Text>
+        <Text style={styles.text}>Total: ${item.total_price.toFixed(2)}</Text>
       </View>
     </View>
   );
@@ -151,19 +165,34 @@ const styles = StyleSheet.create({
 
   cartbox: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 14,
     backgroundColor: Colors.backgroundLight,
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 10,
+    padding: 12,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  image: { width: 90, height: 110, borderRadius: 8, marginRight: 14 },
+  image: { width: 80, height: 100, borderRadius: 8, marginRight: 14 },
   card: { flex: 1 },
-  title: { fontSize: 18, fontWeight: "bold", marginBottom: 4, color: Colors.text },
+
+  titleRowInside: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  title: { fontSize: 18, fontWeight: "bold", color: Colors.text },
+  trashBtn: {
+    backgroundColor: Colors.primary,
+    padding: 6,
+    borderRadius: 6,
+  },
+  trashBtnSingle: {
+    color: Colors.primary,
+  },
   text: { fontSize: 14, marginBottom: 2, color: Colors.textSecondary },
 
   checkoutBtn: {
