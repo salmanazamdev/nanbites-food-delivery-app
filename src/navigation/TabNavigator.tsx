@@ -6,13 +6,14 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Colors from "@/utils/constants/colors";
 
 import HomeScreen from "../screens/main/home/HomeScreen"; 
-// import SearchScreen from "../screens/main/search/SearchScreen";
-// import CartScreen from "../screens/main/cart/CartScreen";
-// import OrdersScreen from "../screens/main/orders/OrdersScreen";
-// import ProfileScreen from "../screens/main/profile/ProfileScreen";
 import RestaurantDetailScreen from "../screens/main/restaurant/RestaurantDetailScreen";
 import CategoryRestaurantsScreen from "../screens/main/restaurant/CategoryRestaurantsScreen";
 import MenuItemDetailScreen from "../screens/main/restaurant/MenuItemDetailScreen";
+
+import OrdersScreen from "../screens/main/order/OrdersScreen";
+import WalletScreen from "../screens/main/wallet/WalletScreen";
+import MessagesScreen from "../screens/main/message/MessagesScreen";
+import ProfileScreen from "../screens/main/profile/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -44,23 +45,23 @@ const TabNavigator = () => (
         let iconName: string;
 
         switch (route.name) {
-          case 'Home':
-            iconName = focused ? 'home' : 'home-outline';
+          case "Home":
+            iconName = focused ? "home" : "home-outline";
             break;
-          case 'Search':
-            iconName = focused ? 'search' : 'search-outline';
+          case "Orders":
+            iconName = focused ? "receipt" : "receipt-outline";
             break;
-          case 'Cart':
-            iconName = focused ? 'bag' : 'bag-outline';
+          case "Wallet":
+            iconName = focused ? "card" : "card-outline";
             break;
-          case 'Orders':
-            iconName = focused ? 'receipt' : 'receipt-outline';
+          case "Messages":
+            iconName = focused ? "chatbubbles" : "chatbubbles-outline";
             break;
-          case 'Profile':
-            iconName = focused ? 'person' : 'person-outline';
+          case "Profile":
+            iconName = focused ? "person" : "person-outline";
             break;
           default:
-            iconName = 'home-outline';
+            iconName = "home-outline";
         }
 
         return <Icon name={iconName} size={size} color={color} />;
@@ -70,22 +71,22 @@ const TabNavigator = () => (
       tabBarStyle: {
         backgroundColor: Colors.background,
         borderTopWidth: 1,
-        borderTopColor: '#E5E5E5',
+        borderTopColor: "#E5E5E5",
         paddingBottom: 8,
         paddingTop: 8,
         height: 60,
       },
       tabBarLabelStyle: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: "500",
       },
     })}
   >
     <Tab.Screen name="Home" component={HomeStackNavigator} />
-    {/* <Tab.Screen name="Search" component={SearchStackNavigator} /> */}
-    {/* <Tab.Screen name="Cart" component={CartScreen} />
     <Tab.Screen name="Orders" component={OrdersScreen} />
-    <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+    <Tab.Screen name="Wallet" component={WalletScreen} />
+    <Tab.Screen name="Messages" component={MessagesScreen} />
+    <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );
 
