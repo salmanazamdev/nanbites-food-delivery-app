@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 30,
-    marginBottom: 12,
+    marginTop: 5,
+    marginBottom: 16,
     justifyContent: "space-between",
   },
   iconBtn: { padding: 4 },
@@ -201,8 +201,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 25,
+    marginTop: 12,
+    marginBottom: 4,
   },
   checkoutText: { color: "white", textAlign: "center", fontSize: 16, fontWeight: "bold" },
 });
