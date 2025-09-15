@@ -108,18 +108,19 @@ class RestaurantService {
   }
 
   // Get restaurant details
-  async getRestaurantById(id: string): Promise<{ data: Restaurant | null; error: any }> {
-    const { data, error } = await supabase
-      .from('restaurants')
-      .select(`
-        *,
-        category:categories(*)
-      `)
-      .eq('id', id)
-      .single();
+async getRestaurantById(id: string): Promise<{ data: (Restaurant & { menu_items: MenuItem[] }) | null; error: any }> {
+  const { data, error } = await supabase
+    .from("restaurants")
+    .select(`
+      *,
+      category:categories(*),
+      menu_items(*)
+    `)
+    .eq("id", id)
+    .single();
 
-    return { data, error };
-  }
+  return { data, error };
+}
 
   // Get menu items for restaurant
   async getMenuItems(restaurantId: string): Promise<{ data: MenuItem[] | null; error: any }> {
