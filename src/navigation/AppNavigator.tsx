@@ -1,4 +1,3 @@
-// src/navigation/AppNavigator.tsx
 import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ActivityIndicator, View } from "react-native";
@@ -8,6 +7,7 @@ import AuthNavigator from "./AuthNavigator";
 import TabNavigator from "./TabNavigator";
 import { useAuth } from "../context/AuthContext";
 import Colors from "@/utils/constants/colors";
+import CartScreen from "@/screens/main/cart/CartScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,18 +36,25 @@ const AppNavigator = () => {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {isFirstLaunch ? (
-        // First launch → show onboarding
-        <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
-      ) : user ? (
-        // Logged in → go to main app
-        <Stack.Screen name="Main" component={TabNavigator} />
-      ) : (
-        // Not logged in → auth flow
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-      )}
-    </Stack.Navigator>
+<Stack.Navigator screenOptions={{ headerShown: false }}>
+  {isFirstLaunch ? (
+    <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
+  ) : user ? (
+    <>
+      <Stack.Screen name="Main" component={TabNavigator} />
+
+      {/* Cart modal accessible from anywhere */}
+      <Stack.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{ presentation: "modal", headerShown: false }}
+      />
+    </>
+  ) : (
+    <Stack.Screen name="Auth" component={AuthNavigator} />
+  )}
+</Stack.Navigator>
+
   );
 };
 
