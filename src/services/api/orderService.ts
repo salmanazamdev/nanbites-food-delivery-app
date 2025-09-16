@@ -1,23 +1,58 @@
 import { supabase } from "@/lib/supabase";
 
-export type Discount = {
+export type Order = {
   id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  discount_percent: number;
-  valid_until: string;
-  is_active: boolean;
+  user_id: string;
+  restaurant_id: string;
+  address_id: string;
+  total_amount: number;
+  delivery_fee: number;
+  payment_method: string;
+  status: string;
+  order_number: string;
+  created_at: string;
+  updated_at: string;
 };
 
-export const discountService = {
-  async getActiveDiscounts(): Promise<{ data: Discount[]; error: any }> {
+export const orderService = {
+  async createOrder(orderData: Omit<Order, "id" | "order_number" | "created_at" | "updated_at">) {
     const { data, error } = await supabase
-      .from("discounts")
+      .from("orders")
+      .insert(orderData)
+      .select()
+      .single();
+
+    return { data, error };
+  },
+
+  async getOrdersByUser(userId: string): Promise<{ data: Order[]; error: any }> {
+    const { data, error } = await supabase
+      .from("orders")
       .select("*")
-      .eq("is_active", true)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     return { data: data || [], error };
+  },
+
+  async getOrderById(orderId: string): Promise<{ data: Order | null; error: any }> {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+
+    return { data, error };
+  },
+
+  async updateOrderStatus(orderId: string, status: string) {
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("id", orderId)
+      .select()
+      .single();
+
+    return { data, error };
   },
 };
