@@ -8,6 +8,7 @@ import TabNavigator from "./TabNavigator";
 import { useAuth } from "../context/AuthContext";
 import Colors from "@/utils/constants/colors";
 import CartScreen from "@/screens/main/cart/CartScreen";
+import CheckoutScreen from "@/screens/main/checkout/CheckoutScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +48,13 @@ const AppNavigator = () => {
       <Stack.Screen
         name="Cart"
         component={CartScreen}
+        options={{ presentation: "modal", headerShown: false }}
+      />
+
+      {/* ✅ Checkout screen */}
+      <Stack.Screen
+        name="Checkout"
+        component={CheckoutScreen}
         options={{ presentation: "modal", headerShown: false }}
       />
     </>

@@ -133,7 +133,7 @@ export default function CartScreen() {
       {items.length > 0 && (
         <TouchableOpacity
           style={styles.checkoutBtn}
-          onPress={() => navigation.navigate("Orders")} // go to orders later
+          onPress={() => navigation.navigate("Checkout")}
         >
           <Text style={styles.checkoutText}>Proceed to Checkout</Text>
         </TouchableOpacity>
