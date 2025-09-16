@@ -63,14 +63,13 @@ export default function CheckoutScreen() {
     fetchCartItems();
   }, []);
 
-  const handleProceedToPayment = () => {
-    if (!cartItems.length) {
-      Alert.alert("Cart Empty", "Please add items before proceeding.");
-      return;
-    }
-    // 🔥 Later: integrate order + payment flow
-    navigation.navigate("Orders");
-  };
+const handlePlaceOrder = async () => {
+  const { data, error } = await orderService.createOrder(orderPayload);
+  if (!error && data) {
+    // clear cart, show success
+    navigation.navigate("Orders"); // jumps to Orders tab
+  }
+};
 
   if (loading) {
     return (
@@ -186,7 +185,7 @@ export default function CheckoutScreen() {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.placeOrderButton}
-          onPress={handleProceedToPayment}
+          onPress={handlePlaceOrder}
         >
           <Text style={styles.placeOrderText}>Proceed to Payment</Text>
         </TouchableOpacity>
