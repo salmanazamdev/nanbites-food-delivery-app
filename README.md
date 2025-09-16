@@ -7,6 +7,7 @@ A comprehensive food delivery mobile application built with React Native CLI, fe
 ### 🔐 Authentication & Onboarding
 - Google OAuth integration
 - Email/Password authentication
+- Fingerprint authentication
 - Multi-step onboarding flow
 - Profile management with photo uploads
 
