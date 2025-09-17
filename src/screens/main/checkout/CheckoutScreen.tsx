@@ -67,7 +67,8 @@ const handlePlaceOrder = async () => {
   const { data, error } = await orderService.createOrder(orderPayload);
   if (!error && data) {
     // clear cart, show success
-    navigation.navigate("Orders"); // jumps to Orders tab
+    navigation.navigate("Orders" as never);
+
   }
 };
 
