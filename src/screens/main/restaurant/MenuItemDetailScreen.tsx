@@ -79,7 +79,7 @@ export default function MenuItemDetailScreen() {
         contentContainerStyle={{ paddingBottom: 30 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* 🖼 Image + Back/Fav buttons */}
+        {/* Image + Back/Fav buttons */}
         <View style={styles.imageWrapper}>
           <Image source={{ uri: item.image_url }} style={styles.image} />
           <TouchableOpacity
@@ -93,13 +93,13 @@ export default function MenuItemDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ℹ️ Info */}
+        {/* Info */}
         <View style={styles.infoSection}>
           <Text style={styles.title}>{item.name}</Text>
           <Text style={styles.desc}>{item.description}</Text>
         </View>
 
-        {/* 🔢 Quantity */}
+        {/* Quantity */}
         <View style={styles.quantityRow}>
           <TouchableOpacity
             style={styles.qtyBtn}
@@ -116,7 +116,7 @@ export default function MenuItemDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* 📝 Note */}
+        {/* Note */}
         <TextInput
           style={styles.noteInput}
           placeholder="Note to Restaurant (optional)"
@@ -125,17 +125,17 @@ export default function MenuItemDetailScreen() {
           onChangeText={setNote}
         />
 
-          {/* 🛒 Add to Cart */}
+          {/* Add to Cart */}
           <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
             <Text style={styles.addToCartText}>
               Add to Cart • ${(item.price * quantity).toFixed(2)}
             </Text>
           </TouchableOpacity>
 
-          {/* ✅ Checkout */}
+          {/* Checkout */}
           <TouchableOpacity
             style={styles.goToCartBtn}
-            onPress={() => navigation.navigate("Cart")}
+            onPress={() => navigation.navigate("Cart" as never)} // Type-safe navigate
           >
             <Text style={styles.goToCartText}>Go to Cart</Text>
           </TouchableOpacity>
