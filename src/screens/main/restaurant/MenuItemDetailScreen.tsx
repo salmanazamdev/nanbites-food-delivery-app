@@ -54,7 +54,22 @@ export default function MenuItemDetailScreen() {
         quantity,
         note
       );
-      if (error) throw error;
+
+      if (error) {
+        // ✅ Special handling for "one restaurant only" rule
+        if (
+          typeof error === "string" &&
+          error.includes("one restaurant at a time")
+        ) {
+          Alert.alert(
+            "Cart Restriction",
+            "You can only add items from one restaurant at a time.\n\nClear your cart before switching restaurants."
+          );
+          return;
+        }
+
+        throw error;
+      }
 
       Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
     } catch (err) {
@@ -125,20 +140,20 @@ export default function MenuItemDetailScreen() {
           onChangeText={setNote}
         />
 
-          {/* Add to Cart */}
-          <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
-            <Text style={styles.addToCartText}>
-              Add to Cart • ${(item.price * quantity).toFixed(2)}
-            </Text>
-          </TouchableOpacity>
+        {/* Add to Cart */}
+        <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
+          <Text style={styles.addToCartText}>
+            Add to Cart • ${(item.price * quantity).toFixed(2)}
+          </Text>
+        </TouchableOpacity>
 
-          {/* Checkout */}
-          <TouchableOpacity
-            style={styles.goToCartBtn}
-            onPress={() => navigation.navigate("Cart" as never)} // Type-safe navigate
-          >
-            <Text style={styles.goToCartText}>Go to Cart</Text>
-          </TouchableOpacity>
+        {/* Checkout */}
+        <TouchableOpacity
+          style={styles.goToCartBtn}
+          onPress={() => navigation.navigate("Cart" as never)}
+        >
+          <Text style={styles.goToCartText}>Go to Cart</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,7 +189,12 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   infoSection: { padding: 18, paddingBottom: 0 },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 6, color: Colors.text },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 6,
+    color: Colors.text,
+  },
   desc: { fontSize: 15, color: Colors.textSecondary, marginBottom: 20 },
 
   quantityRow: {
@@ -201,38 +221,37 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
 
-addToCartBtn: {
-  backgroundColor: Colors.accent, 
-  paddingVertical: 16,
-  borderRadius: 14,
-  alignItems: "center",
-  marginHorizontal: 18,
-  marginBottom: 14,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 4,
-  elevation: 3,
-},
-addToCartText: {
-  color: "#fff",
-  fontSize: 17,
-  fontWeight: "700",
-},
+  addToCartBtn: {
+    backgroundColor: Colors.accent,
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: "center",
+    marginHorizontal: 18,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  addToCartText: {
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "700",
+  },
 
-goToCartBtn: {
-  borderWidth: 1.5,
-  borderColor: Colors.primary,
-  paddingVertical: 14,
-  borderRadius: 12,
-  alignItems: "center",
-  marginHorizontal: 18,
-  marginBottom: 24,
-},
-goToCartText: {
-  color: Colors.primary,
-  fontSize: 16,
-  fontWeight: "600",
-},
-    
+  goToCartBtn: {
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginHorizontal: 18,
+    marginBottom: 24,
+  },
+  goToCartText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
