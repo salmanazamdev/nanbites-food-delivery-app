@@ -157,74 +157,87 @@ class CartService {
     quantity: number = 1,
     note?: string
   ) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "Not logged in" };
+    // get current user
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData?.user;
+    if (!user) return { data: null, error: "Not logged in" };
 
-    // ✅ Get menu item price
-    const { data: menuItem, error: menuError } = await supabase
+    // get menu item price (and verify restaurant_id if you want)
+    const { data: menuItemData, error: menuError } = await supabase
       .from("menu_items")
-      .select("price")
+      .select("price, restaurant_id")
       .eq("id", menuItemId)
       .single();
 
-    if (menuError) return { error: menuError };
-    const price = menuItem.price;
+    if (menuError) return { data: null, error: menuError };
+    const price = Number(menuItemData?.price ?? 0);
     const totalPrice = price * quantity;
 
-    // ✅ Check existing cart
-    const { data: existingCart, error: cartError } = await supabase
+    // fetch existing cart items for user
+    const { data: existingCart, error: cartFetchError } = await supabase
       .from("cart_items")
-      .select("id, restaurant_id, menu_item_id, quantity, price, total_price")
+      .select("id, menu_item_id, restaurant_id, quantity, price, total_price")
       .eq("user_id", user.id);
 
-    if (cartError) return { error: cartError };
+    if (cartFetchError) return { data: null, error: cartFetchError };
 
-    // ✅ If cart has items from a different restaurant → block
+    // If cart has items from a different restaurant -> block (single-restaurant rule)
+    const restaurantIds = Array.isArray(existingCart)
+      ? [...new Set(existingCart.map((c: any) => c.restaurant_id).filter(Boolean))]
+      : [];
+
     if (
-      existingCart &&
-      existingCart.length > 0 &&
-      existingCart[0].restaurant_id !== restaurantId
+      restaurantIds.length > 0 &&
+      // allow if the only restaurant in cart is the same as the one we are adding
+      !(restaurantIds.length === 1 && restaurantIds[0] === restaurantId)
     ) {
-      return {
-        error:
-          "You can only add items from one restaurant at a time. Please clear your cart first.",
-      };
+      return { data: null, error: "DIFFERENT_RESTAURANT" };
     }
 
-    // ✅ Check if item already exists in this user's cart
-    const existingItem = existingCart.find(
-      (i) => i.menu_item_id === menuItemId
-    );
+    // find existing item (same menu_item_id)
+    const existingItem = Array.isArray(existingCart)
+      ? existingCart.find((i: any) => i.menu_item_id === menuItemId)
+      : null;
 
     if (existingItem) {
-      return await supabase
+      // update existing cart item quantity + total_price
+      const newQty = Number(existingItem.quantity) + Number(quantity);
+      const { data, error } = await supabase
         .from("cart_items")
         .update({
-          quantity: existingItem.quantity + quantity,
-          total_price: (existingItem.quantity + quantity) * price,
+          quantity: newQty,
+          total_price: newQty * price,
           note,
         })
-        .eq("id", existingItem.id);
+        .eq("id", existingItem.id)
+        .select()
+        .single();
+
+      return { data, error };
     } else {
-      return await supabase.from("cart_items").insert({
-        user_id: user.id,
-        menu_item_id: menuItemId,
-        restaurant_id: restaurantId,
-        quantity,
-        price,
-        total_price: totalPrice,
-        note,
-      });
+      // insert new cart item
+      const { data, error } = await supabase
+        .from("cart_items")
+        .insert({
+          user_id: user.id,
+          menu_item_id: menuItemId,
+          restaurant_id: restaurantId,
+          quantity,
+          price,
+          total_price: totalPrice,
+          note,
+        })
+        .select()
+        .single();
+
+      return { data, error };
     }
   }
 
   // Get Cart Items (with joins)
   async getCartItems(): Promise<{ data: CartItem[] | null; error: any }> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData?.user;
     if (!user) return { data: null, error: "Not logged in" };
 
     const { data, error } = await supabase
@@ -250,37 +263,50 @@ class CartService {
       .eq("id", cartItemId)
       .single();
 
-    if (fetchError) return { error: fetchError };
+    if (fetchError) return { data: null, error: fetchError };
 
-    return await supabase
+    const { data, error } = await supabase
       .from("cart_items")
       .update({
         quantity,
         total_price: cartItem.price * quantity,
       })
-      .eq("id", cartItemId);
+      .eq("id", cartItemId)
+      .select()
+      .single();
+
+    return { data, error };
   }
 
   // Remove a single item
   async removeFromCart(cartItemId: string) {
-    return await supabase.from("cart_items").delete().eq("id", cartItemId);
+    const { data, error } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("id", cartItemId)
+      .select();
+    return { data, error };
   }
 
   // Clear entire cart
   async clearCart() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "Not logged in" };
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData?.user;
+    if (!user) return { data: null, error: "Not logged in" };
 
-    return await supabase.from("cart_items").delete().eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("cart_items")
+      .delete()
+      .eq("user_id", user.id)
+      .select();
+
+    return { data, error };
   }
 
   // Get total summary
   async getCartTotal() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData?.user;
     if (!user) return { data: null, error: "Not logged in" };
 
     const { data, error } = await supabase
@@ -290,8 +316,8 @@ class CartService {
 
     if (error) return { data: null, error };
 
-    const total = data.reduce((sum, item) => sum + item.total_price, 0);
-    const itemCount = data.reduce((sum, item) => sum + item.quantity, 0);
+    const total = data.reduce((sum: number, item: any) => sum + Number(item.total_price), 0);
+    const itemCount = data.reduce((sum: number, item: any) => sum + Number(item.quantity), 0);
 
     return { data: { total, itemCount }, error: null };
   }
