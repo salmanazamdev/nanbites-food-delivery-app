@@ -26,6 +26,7 @@ export default function MenuItemDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     loadMenuItem();
@@ -47,34 +48,75 @@ export default function MenuItemDetailScreen() {
   const handleAddToCart = async () => {
     if (!item) return;
 
+    setAdding(true);
     try {
-      const { error } = await cartService.addToCart(
+      const res: any = await cartService.addToCart(
         item.id,
         restaurantId,
         quantity,
         note
       );
 
-      if (error) {
-        // ✅ Special handling for "one restaurant only" rule
-        if (
-          typeof error === "string" &&
-          error.includes("one restaurant at a time")
-        ) {
+      // res has { data, error } shape or custom error
+      const err = res?.error;
+
+      if (err) {
+        // Special handling for "different restaurant" error
+        if (typeof err === "string" && err === "DIFFERENT_RESTAURANT") {
+          // Ask user: clear cart and add this item?
           Alert.alert(
-            "Cart Restriction",
-            "You can only add items from one restaurant at a time.\n\nClear your cart before switching restaurants."
+            "Different Restaurant",
+            "Your cart contains items from another restaurant. Clear the cart and add this item?",
+            [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Clear & Add",
+                style: "destructive",
+                onPress: async () => {
+                  // Clear cart then add again
+                  const clearRes: any = await cartService.clearCart();
+                  if (clearRes?.error) {
+                    console.error("Clear cart error:", clearRes.error);
+                    Alert.alert("Error", "Could not clear cart. Try again.");
+                    setAdding(false);
+                    return;
+                  }
+
+                  // Retry add
+                  const retryRes: any = await cartService.addToCart(
+                    item.id,
+                    restaurantId,
+                    quantity,
+                    note
+                  );
+                  if (retryRes?.error) {
+                    console.error("Retry add error:", retryRes.error);
+                    Alert.alert("Error", "Could not add item after clearing cart.");
+                  } else {
+                    Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
+                  }
+                },
+              },
+            ]
           );
+          setAdding(false);
           return;
         }
 
-        throw error;
+        // General error fallback
+        console.error("Add to cart error:", err);
+        Alert.alert("Error", "Could not add item to cart. Please try again.");
+        setAdding(false);
+        return;
       }
 
+      // Success
       Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
-    } catch (err) {
-      console.error("Error adding to cart:", err);
+    } catch (ex) {
+      console.error("Unexpected error adding to cart:", ex);
       Alert.alert("Error", "Could not add item to cart. Please try again.");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -119,6 +161,7 @@ export default function MenuItemDetailScreen() {
           <TouchableOpacity
             style={styles.qtyBtn}
             onPress={() => setQuantity(Math.max(1, quantity - 1))}
+            disabled={adding}
           >
             <Icon name="remove" size={20} color={Colors.primary} />
           </TouchableOpacity>
@@ -126,6 +169,7 @@ export default function MenuItemDetailScreen() {
           <TouchableOpacity
             style={styles.qtyBtn}
             onPress={() => setQuantity(quantity + 1)}
+            disabled={adding}
           >
             <Icon name="add" size={20} color={Colors.primary} />
           </TouchableOpacity>
@@ -138,16 +182,21 @@ export default function MenuItemDetailScreen() {
           placeholderTextColor={Colors.textSecondary}
           value={note}
           onChangeText={setNote}
+          editable={!adding}
         />
 
         {/* Add to Cart */}
-        <TouchableOpacity style={styles.addToCartBtn} onPress={handleAddToCart}>
+        <TouchableOpacity
+          style={styles.addToCartBtn}
+          onPress={handleAddToCart}
+          disabled={adding}
+        >
           <Text style={styles.addToCartText}>
-            Add to Cart • ${(item.price * quantity).toFixed(2)}
+            {adding ? "Adding..." : `Add to Cart • $${(item.price * quantity).toFixed(2)}`}
           </Text>
         </TouchableOpacity>
 
-        {/* Checkout */}
+        {/* Go To Cart */}
         <TouchableOpacity
           style={styles.goToCartBtn}
           onPress={() => navigation.navigate("Cart" as never)}
