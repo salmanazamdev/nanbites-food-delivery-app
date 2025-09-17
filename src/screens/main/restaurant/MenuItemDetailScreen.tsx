@@ -24,9 +24,9 @@ export default function MenuItemDetailScreen() {
 
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState("");
-  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     loadMenuItem();
@@ -34,6 +34,7 @@ export default function MenuItemDetailScreen() {
 
   const loadMenuItem = async () => {
     try {
+      setLoading(true);
       const { data, error } = await restaurantService.getMenuItemById(itemId);
       if (error) throw error;
       setItem(data);
@@ -56,64 +57,65 @@ export default function MenuItemDetailScreen() {
         quantity,
         note
       );
+      // res is either supabase result { data, error } or { data: null, error: 'DIFFERENT_RESTAURANT' }
+      const error = res?.error;
 
-      // res has { data, error } shape or custom error
-      const err = res?.error;
-
-      if (err) {
-        // Special handling for "different restaurant" error
-        if (typeof err === "string" && err === "DIFFERENT_RESTAURANT") {
-          // Ask user: clear cart and add this item?
+      if (error) {
+        // Special handling for "one restaurant only" rule
+        if (error === "DIFFERENT_RESTAURANT") {
+          // Offer user to clear cart and add
           Alert.alert(
             "Different Restaurant",
-            "Your cart contains items from another restaurant. Clear the cart and add this item?",
+            "Your cart already contains items from another restaurant. Do you want to clear the cart and add this item?",
             [
               { text: "Cancel", style: "cancel" },
               {
                 text: "Clear & Add",
                 style: "destructive",
                 onPress: async () => {
-                  // Clear cart then add again
-                  const clearRes: any = await cartService.clearCart();
-                  if (clearRes?.error) {
-                    console.error("Clear cart error:", clearRes.error);
-                    Alert.alert("Error", "Could not clear cart. Try again.");
-                    setAdding(false);
-                    return;
-                  }
-
-                  // Retry add
-                  const retryRes: any = await cartService.addToCart(
-                    item.id,
-                    restaurantId,
-                    quantity,
-                    note
-                  );
-                  if (retryRes?.error) {
-                    console.error("Retry add error:", retryRes.error);
-                    Alert.alert("Error", "Could not add item after clearing cart.");
-                  } else {
+                  try {
+                    setAdding(true);
+                    const clearRes: any = await cartService.clearCart();
+                    if (clearRes?.error) {
+                      Alert.alert("Error", "Failed to clear cart. Try again.");
+                      return;
+                    }
+                    // retry add
+                    const retryRes: any = await cartService.addToCart(
+                      item.id,
+                      restaurantId,
+                      quantity,
+                      note
+                    );
+                    if (retryRes?.error) {
+                      console.error("Retry add error:", retryRes.error);
+                      Alert.alert("Error", "Could not add item after clearing cart.");
+                      return;
+                    }
                     Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
+                  } catch (err) {
+                    console.error("Clear & Add error:", err);
+                    Alert.alert("Error", "Something went wrong.");
+                  } finally {
+                    setAdding(false);
                   }
                 },
               },
             ]
           );
-          setAdding(false);
           return;
         }
 
-        // General error fallback
-        console.error("Add to cart error:", err);
+        // Other error from supabase or service
+        console.error("Add to cart error:", error);
         Alert.alert("Error", "Could not add item to cart. Please try again.");
-        setAdding(false);
         return;
       }
 
-      // Success
+      // success
       Alert.alert("Added to Cart", `${quantity}x ${item.name} added!`);
-    } catch (ex) {
-      console.error("Unexpected error adding to cart:", ex);
+    } catch (err) {
+      console.error("Error adding to cart:", err);
       Alert.alert("Error", "Could not add item to cart. Please try again.");
     } finally {
       setAdding(false);
@@ -187,7 +189,7 @@ export default function MenuItemDetailScreen() {
 
         {/* Add to Cart */}
         <TouchableOpacity
-          style={styles.addToCartBtn}
+          style={[styles.addToCartBtn, adding && { opacity: 0.7 }]}
           onPress={handleAddToCart}
           disabled={adding}
         >
@@ -196,7 +198,7 @@ export default function MenuItemDetailScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Go To Cart */}
+        {/* Checkout */}
         <TouchableOpacity
           style={styles.goToCartBtn}
           onPress={() => navigation.navigate("Cart" as never)}
@@ -238,12 +240,7 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   infoSection: { padding: 18, paddingBottom: 0 },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 6,
-    color: Colors.text,
-  },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 6, color: Colors.text },
   desc: { fontSize: 15, color: Colors.textSecondary, marginBottom: 20 },
 
   quantityRow: {
