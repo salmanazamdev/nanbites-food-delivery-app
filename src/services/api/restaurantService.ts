@@ -147,11 +147,16 @@ class RestaurantService {
 export const restaurantService = new RestaurantService();
 
 // =======================
-// Cart Service 
+// Cart Service (One Restaurant Only)
 // =======================
 class CartService {
-  // Add to Cart
-  async addToCart(menuItemId: string, restaurantId: string, quantity: number = 1, note?: string) {
+  // Add to Cart (enforces single-restaurant rule)
+  async addToCart(
+    menuItemId: string,
+    restaurantId: string,
+    quantity: number = 1,
+    note?: string
+  ) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -163,36 +168,50 @@ class CartService {
       .select("price")
       .eq("id", menuItemId)
       .single();
-    if (menuError) return { error: menuError };
 
+    if (menuError) return { error: menuError };
     const price = menuItem.price;
     const totalPrice = price * quantity;
 
-    // ✅ Check if item already exists in this user's cart
-    const { data: existingItem } = await supabase
+    // ✅ Check existing cart
+    const { data: existingCart, error: cartError } = await supabase
       .from("cart_items")
-      .select("id, quantity, price, restaurant_id")
-      .eq("menu_item_id", menuItemId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+      .select("id, restaurant_id, menu_item_id, quantity, price, total_price")
+      .eq("user_id", user.id);
+
+    if (cartError) return { error: cartError };
+
+    // ✅ If cart has items from a different restaurant → block
+    if (
+      existingCart &&
+      existingCart.length > 0 &&
+      existingCart[0].restaurant_id !== restaurantId
+    ) {
+      return {
+        error:
+          "You can only add items from one restaurant at a time. Please clear your cart first.",
+      };
+    }
+
+    // ✅ Check if item already exists in this user's cart
+    const existingItem = existingCart.find(
+      (i) => i.menu_item_id === menuItemId
+    );
 
     if (existingItem) {
-      // ✅ Make sure we keep restaurant_id when updating
       return await supabase
         .from("cart_items")
         .update({
           quantity: existingItem.quantity + quantity,
           total_price: (existingItem.quantity + quantity) * price,
           note,
-          restaurant_id: restaurantId, // 👈 force-save in case it was missing
         })
         .eq("id", existingItem.id);
     } else {
-      // ✅ Insert new item with restaurant_id
       return await supabase.from("cart_items").insert({
         user_id: user.id,
         menu_item_id: menuItemId,
-        restaurant_id: restaurantId, // 👈 important!
+        restaurant_id: restaurantId,
         quantity,
         price,
         total_price: totalPrice,
@@ -210,12 +229,14 @@ class CartService {
 
     const { data, error } = await supabase
       .from("cart_items")
-      .select(`
+      .select(
+        `
         *,
         menu_item:menu_items(*),
         restaurant:restaurants!cart_items_restaurant_id_fkey(id, restaurant_name, image_url)
-      `)
-      .eq("user_id", user.id) // ✅ only fetch this user's items
+      `
+      )
+      .eq("user_id", user.id)
       .order("created_at", { ascending: true });
 
     return { data, error };
@@ -228,6 +249,7 @@ class CartService {
       .select("price")
       .eq("id", cartItemId)
       .single();
+
     if (fetchError) return { error: fetchError };
 
     return await supabase
@@ -265,6 +287,7 @@ class CartService {
       .from("cart_items")
       .select("total_price, quantity")
       .eq("user_id", user.id);
+
     if (error) return { data: null, error };
 
     const total = data.reduce((sum, item) => sum + item.total_price, 0);
