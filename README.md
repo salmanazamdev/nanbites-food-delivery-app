@@ -53,6 +53,7 @@ A comprehensive food delivery mobile application built with React Native CLI, fe
   - Real-time subscriptions
   - Authentication
   - File storage
+  - Database migrations
 - **Stripe** - Payment processing
 - **Mapbox** - Maps and location services
 - **Firebase Cloud Messaging** - Push notifications
@@ -98,10 +99,14 @@ src/
 ├── hooks/               # Custom React hooks
 ├── context/             # React Context providers
 ├── types/               # TypeScript type definitions
-└── assets/              # Images, fonts, and static files
-    ├── images/
-    ├── icons/
-    └── fonts/
+├── assets/              # Images, fonts, and static files
+│   ├── images/
+│   ├── icons/
+│   └── fonts/
+└── supabase/            # Database migrations and configuration
+    ├── migrations/      # Database migration files
+    ├── config.toml      # Supabase configuration
+    └── seed.sql         # Database seed data
 ```
 
 ## 🚀 Getting Started
@@ -110,6 +115,8 @@ src/
 - Node.js (v18 or higher)
 - React Native CLI
 - Android Studio / Xcode
+- Supabase CLI (for database management)
+- Docker Desktop (for local database development)
 - Supabase account
 - Stripe account
 - Mapbox account
@@ -129,12 +136,37 @@ src/
    yarn install
    ```
 
-3. **iOS Setup** (if developing for iOS)
+3. **Install Supabase CLI**
+   ```bash
+   # Windows (using Scoop)
+   scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+   scoop install supabase
+   
+   # macOS
+   brew install supabase/tap/supabase
+   
+   # Alternative: Use npx for each command
+   npx supabase --version
+   ```
+
+4. **iOS Setup** (if developing for iOS)
    ```bash
    cd ios && pod install && cd ..
    ```
 
-4. **Environment Configuration**
+5. **Database Setup**
+   ```bash
+   # Login to Supabase
+   supabase login
+   
+   # Link to the project (replace with your project ref)
+   supabase link --project-ref your-project-ref
+   
+   # Pull latest database schema
+   supabase db pull
+   ```
+
+6. **Environment Configuration**
    ```bash
    cp .env.example .env
    ```
@@ -156,7 +188,7 @@ src/
    GOOGLE_CLIENT_ID=your_google_client_id
    ```
 
-5. **Run the application**
+7. **Run the application**
    ```bash
    # Start Metro bundler
    npx react-native start
@@ -167,6 +199,35 @@ src/
    # Run on iOS
    npx react-native run-ios
    ```
+
+## 🗄️ Database Management
+
+### Migration Commands
+```bash
+# Create a new migration
+supabase migration new migration_name
+
+# Apply migrations to remote database
+supabase db push
+
+# Check migration status
+supabase migration list
+
+# Reset local database (development only)
+supabase db reset
+```
+
+### Common Migration Issues
+If you encounter "migration history mismatch" errors:
+```bash
+# Repair migration history
+supabase migration repair --status applied MIGRATION_ID
+
+# Then pull the schema
+supabase db pull
+```
+
+**Note**: The global npm install method (`npm install -g supabase`) is deprecated as of 2025. Use platform-specific installation methods above.
 
 ## 📊 Database Schema (Supabase)
 
@@ -179,6 +240,8 @@ src/
 - `reviews` - User reviews and ratings
 - `addresses` - User delivery addresses
 - `payments` - Payment transaction records
+
+All schema changes are version-controlled through migration files in `supabase/migrations/`.
 
 ## 🎨 Design System
 
@@ -270,12 +333,26 @@ cd android && ./gradlew assembleRelease
 
 ## 🤝 Contributing
 
+### Development Workflow
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+3. If making database changes, create migrations:
+   ```bash
+   supabase migration new feature_amazing_feature
+   ```
+4. Test your changes locally:
+   ```bash
+   supabase db reset  # Reset local DB with migrations
+   ```
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
+### Database Changes
+- **Never edit existing migration files** - create new ones
+- **Test migrations locally** before pushing
+- **Include both schema and data changes** in migration files
+- **Add rollback instructions** in migration comments when possible
 
 ## 👨‍💻 Author
 
@@ -296,6 +373,7 @@ cd android && ./gradlew assembleRelease
 - [x] Basic food ordering
 - [x] Payment integration
 - [x] Map integration
+- [x] Database migrations setup
 
 ### Phase 2 - Enhanced Features 🚧
 - [ ] Real-time chat with delivery partners
