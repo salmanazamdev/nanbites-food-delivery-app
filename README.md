@@ -1,6 +1,6 @@
 # 🍕 NanBites Food Delivery App
 
-A comprehensive food delivery mobile application built with React Native CLI, featuring modern UI/UX, real-time tracking, secure payments, and seamless user experience.
+A comprehensive full-stack food delivery mobile application built with React Native CLI, featuring modern UI/UX, real-time tracking, secure payments, and seamless user experience.
 
 ## 📱 Features
 
