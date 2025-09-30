@@ -58,11 +58,11 @@ Supabase Real-time → Redux Middleware → Component Updates
 ### Service Organization
 services/
 ├── api/
-│   ├── supabase.ts      # Client configuration
-│   ├── auth.ts          # Authentication methods
-│   ├── restaurants.ts   # Restaurant operations
-│   ├── orders.ts        # Order management
-│   └── users.ts         # User profile operations
+│   ├── supabase.ts           # Client configuration
+│   ├── auth.ts               # Authentication methods
+│   ├── restaurantService.ts  # Restaurant operations
+│   ├── orderService.ts       # Order management
+│   ├── discountService.ts    # Discounts management
 ├── payment/
 │   └── stripe.ts        # Payment processing
 ├── location/
