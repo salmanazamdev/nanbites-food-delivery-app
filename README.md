@@ -58,12 +58,12 @@ A comprehensive full-stack food delivery mobile application built with React Nat
 - **Mapbox** - Maps and location services
 - **Firebase Cloud Messaging** - Push notifications
 
-### Development Tools
+<!-- ### Development Tools
 - **ESLint & Prettier** - Code formatting
 - **Husky** - Git hooks
 - **Jest** - Testing framework
 - **Flipper** - Debugging
-- **CodePush** - Over-the-air updates
+- **CodePush** - Over-the-air updates -->
 
 ## 🏗️ Project Structure
 
