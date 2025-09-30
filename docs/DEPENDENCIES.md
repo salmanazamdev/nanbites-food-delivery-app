@@ -1,5 +1,6 @@
 # 📦 NanBites Dependencies Guide
 
+-- Just so you know.... package.json wil already include the required libraries as per project progression.
 ## Package Categories & Purposes
 
 ### 🧭 Navigation Packages
