@@ -1,5 +1,7 @@
 # 🚀 NanBites Complete Setup Guide
 
+-- Just in case, you are starting fresh, else no need to rebuild this process. Already done.
+
 ## 📦 Essential Dependencies Installation
 
 ### Core React Native Packages
