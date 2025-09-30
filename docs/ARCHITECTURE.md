@@ -41,7 +41,7 @@ Supabase Real-time → Redux Middleware → Component Updates
 
 ## State Management Strategy
 
-### Redux Slices
+<!-- ### Redux Slices
 - `authSlice` - User authentication and profile
 - `cartSlice` - Shopping cart state
 - `orderSlice` - Order management
@@ -51,7 +51,7 @@ Supabase Real-time → Redux Middleware → Component Updates
 ### Context Usage
 - `ThemeContext` - Dark/Light mode
 - `LocationContext` - GPS and location services
-- `NotificationContext` - Push notification handling
+- `NotificationContext` - Push notification handling -->
 
 ## API Layer Structure
 
