@@ -183,7 +183,7 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
             renderItem={renderDiscountItem}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
+            contentContainerStyle={styles.discountsList}
           />
         </View>
       )}
@@ -264,6 +264,7 @@ iconBtn: {
   },
 
   // Discounts
+  discountsList: { paddingHorizontal: 20 },
   discountBanner: {
     width: 320,
     height: 160,

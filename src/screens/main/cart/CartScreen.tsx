@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ export default function CartScreen() {
 
   useEffect(() => {
     loadCartItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadCartItems = async () => {
@@ -125,7 +126,7 @@ export default function CartScreen() {
         renderItem={renderItem}
         ListEmptyComponent={<Text>No items in cart.</Text>}
         contentContainerStyle={
-          items.length === 0 && { flex: 1, justifyContent: "center", alignItems: "center" }
+          items.length === 0 ? styles.emptyListContainer : undefined
         }
       />
 
@@ -205,4 +206,5 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   checkoutText: { color: "white", textAlign: "center", fontSize: 16, fontWeight: "bold" },
+  emptyListContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 });
