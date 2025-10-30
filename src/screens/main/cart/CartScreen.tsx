@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -44,7 +44,7 @@ export default function CartScreen() {
     }
   };
 
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     Alert.alert("Clear Cart", "Are you sure you want to remove all items?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -60,18 +60,18 @@ export default function CartScreen() {
         },
       },
     ]);
-  };
+  }, []);
 
-  const removeItem = async (itemId: string) => {
+  const removeItem = useCallback(async (itemId: string) => {
     const { error } = await cartService.removeFromCart(itemId);
     if (error) {
       Alert.alert("Error", "Failed to remove item");
     } else {
       setItems((prev) => prev.filter((i) => i.id !== itemId));
     }
-  };
+  }, []);
 
-  const renderItem = ({ item }: { item: CartItem }) => (
+  const renderItem = useCallback(({ item }: { item: CartItem }) => (
     <View style={styles.cartbox}>
       <Image
         source={{ uri: item.menu_item?.image_url || item.restaurant?.image_url }}
@@ -90,7 +90,7 @@ export default function CartScreen() {
         <Text style={styles.text}>Total: ${item.total_price.toFixed(2)}</Text>
       </View>
     </View>
-  );
+  ), [removeItem]);
 
   if (loading) {
     return (

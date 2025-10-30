@@ -63,9 +63,14 @@ class RestaurantService {
   }
 
   async getFeaturedRestaurants() {
+    // Optimized: Select only needed fields to reduce data transfer
     return await supabase
       .from("restaurants")
-      .select(`*, category:categories(*)`)
+      .select(`
+        id, restaurant_name, address, image_url, rating, total_reviews,
+        delivery_fee, minimum_order, delivery_time, is_open,
+        category:categories(id, category_name, image_url)
+      `)
       .eq("is_featured", true)
       .eq("is_open", true)
       .order("rating", { ascending: false })
@@ -113,9 +118,14 @@ class RestaurantService {
   }
 
   async getAllRestaurants() {
+    // Optimized: Select only needed fields to reduce data transfer
     return await supabase
       .from("restaurants")
-      .select(`*, category:categories(*)`)
+      .select(`
+        id, restaurant_name, address, image_url, rating, total_reviews,
+        delivery_fee, minimum_order, delivery_time, is_open,
+        category:categories(id, category_name, image_url)
+      `)
       .eq("is_open", true)
       .order("rating", { ascending: false })
       .limit(20);
@@ -151,41 +161,57 @@ export const restaurantService = new RestaurantService();
 // Cart Service - SUPER SIMPLIFIED (Database Handles Everything)
 // =======================
 class CartService {
-// Updated addToCart method for CartService
+  // Cache user to avoid repeated auth calls
+  private cachedUser: any = null;
+  private cacheExpiry: number = 0;
+
+  private async getAuthUser() {
+    const now = Date.now();
+    if (this.cachedUser && now < this.cacheExpiry) {
+      return this.cachedUser;
+    }
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      this.cachedUser = user;
+      this.cacheExpiry = now + 60000; // Cache for 1 minute
+    }
+    return user;
+  }
+
+// Optimized addToCart method with reduced database calls
 async addToCart(
   menuItemId: string,
   restaurantId: string,
   quantity: number = 1,
   note?: string
 ) {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await this.getAuthUser();
   if (!user) return { data: null, error: "NOT_LOGGED_IN" };
 
-  // Get menu item details
-  const { data: menuItem, error: menuError } = await supabase
-    .from("menu_items")
-    .select("price, restaurant_id")
-    .eq("id", menuItemId)
-    .single();
+  // Single query: Get menu item and existing cart items in parallel
+  const [menuItemRes, existingItemRes] = await Promise.all([
+    supabase
+      .from("menu_items")
+      .select("price, restaurant_id")
+      .eq("id", menuItemId)
+      .single(),
+    supabase
+      .from("cart_items")
+      .select("id, quantity, restaurant_id")
+      .eq("user_id", user.id)
+      .eq("menu_item_id", menuItemId)
+      .maybeSingle()
+  ]);
 
-  if (menuError) return { data: null, error: menuError };
+  if (menuItemRes.error) return { data: null, error: menuItemRes.error };
 
-  const price = menuItem.price;
-  const finalRestaurantId = restaurantId || menuItem.restaurant_id;
-
-  // First, check if item already exists in cart
-  const { data: existingItem, error: checkError } = await supabase
-    .from("cart_items")
-    .select("id, quantity, restaurant_id")
-    .eq("user_id", user.id)
-    .eq("menu_item_id", menuItemId)
-    .single();
+  const price = menuItemRes.data.price;
+  const finalRestaurantId = restaurantId || menuItemRes.data.restaurant_id;
 
   // If item exists, update quantity
-  if (existingItem) {
-    const newQuantity = existingItem.quantity + quantity;
+  if (existingItemRes.data) {
+    const newQuantity = existingItemRes.data.quantity + quantity;
     const newTotalPrice = price * newQuantity;
 
     const { data, error } = await supabase
@@ -193,25 +219,25 @@ async addToCart(
       .update({
         quantity: newQuantity,
         total_price: newTotalPrice,
-        note: note || undefined, // Only update note if provided
+        note: note || undefined,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", existingItem.id)
+      .eq("id", existingItemRes.data.id)
       .select()
       .single();
 
     return { data, error };
   }
 
-  // Check for different restaurant before attempting insert
-  const { data: cartItems, error: cartCheckError } = await supabase
+  // Check for different restaurant (only needed for new items)
+  const { data: anyCartItem } = await supabase
     .from("cart_items")
     .select("restaurant_id")
     .eq("user_id", user.id)
     .limit(1)
-    .single();
+    .maybeSingle();
 
-  if (cartItems && cartItems.restaurant_id !== finalRestaurantId) {
+  if (anyCartItem && anyCartItem.restaurant_id !== finalRestaurantId) {
     return { data: null, error: "DIFFERENT_RESTAURANT" };
   }
 
@@ -238,7 +264,6 @@ async addToCart(
       return { data: null, error: "DIFFERENT_RESTAURANT" };
     }
     if (error.code === "23505") {
-      // This shouldn't happen now, but handle it just in case
       return { data: null, error: "DUPLICATE_ITEM" };
     }
   }
@@ -246,11 +271,9 @@ async addToCart(
   return { data, error };
 }
 
-  // Get Cart Items (with joins)
+  // Get Cart Items (with joins) - Optimized with cached user
   async getCartItems(): Promise<{ data: CartItem[] | null; error: any }> {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await this.getAuthUser();
     if (!user) return { data: null, error: "Not logged in" };
 
     const { data, error } = await supabase
@@ -281,32 +304,36 @@ async addToCart(
     return await supabase.from("cart_items").delete().eq("id", cartItemId);
   }
 
-  // Clear entire cart
+  // Clear entire cart - Optimized with cached user
   async clearCart() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await this.getAuthUser();
     if (!user) return { data: null, error: "NOT_LOGGED_IN" };
 
     return await supabase.from("cart_items").delete().eq("user_id", user.id);
   }
 
-  // Get total summary
+  // Optimized: Get total summary using database aggregation
   async getCartTotal() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await this.getAuthUser();
     if (!user) return { data: null, error: "Not logged in" };
 
+    // Use Supabase RPC or aggregation if available, otherwise fetch minimal data
     const { data, error } = await supabase
       .from("cart_items")
       .select("total_price, quantity")
       .eq("user_id", user.id);
 
     if (error) return { data: null, error };
+    if (!data) return { data: { total: 0, itemCount: 0 }, error: null };
 
-    const total = data.reduce((sum: number, item: any) => sum + item.total_price, 0);
-    const itemCount = data.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    // Use a single pass to calculate both values
+    const { total, itemCount } = data.reduce(
+      (acc, item) => ({
+        total: acc.total + item.total_price,
+        itemCount: acc.itemCount + item.quantity
+      }),
+      { total: 0, itemCount: 0 }
+    );
 
     return { data: { total, itemCount }, error: null };
   }

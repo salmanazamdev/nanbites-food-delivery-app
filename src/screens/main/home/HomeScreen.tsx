@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -61,11 +61,59 @@ export default function HomeScreen() {
     }
   };
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadData();
     setRefreshing(false);
-  };
+  }, []);
+
+  // Memoize user display name
+  const userName = useMemo(
+    () => user?.user_metadata?.full_name || "Foodie",
+    [user?.user_metadata?.full_name]
+  );
+
+  // Memoized render callbacks for better performance
+  const renderCategoryItem = useCallback(({ item }: { item: Category }) => (
+    <TouchableOpacity
+      style={styles.categoryItem}
+      onPress={() => navigation.navigate("CategoryRestaurants", { categoryId: item.id })}
+    >
+      <Image source={{ uri: item.image_url }} style={styles.categoryImage} />
+      <Text style={styles.categoryName}>{item.category_name}</Text>
+    </TouchableOpacity>
+  ), [navigation]);
+
+  const renderDiscountItem = useCallback(({ item }: { item: Discount }) => (
+    <TouchableOpacity style={styles.discountBanner}>
+      <Image source={{ uri: item.image_url }} style={styles.discountImage} />
+      <View style={styles.discountTextContainer}>
+        <Text style={styles.discountText}>{item.discount_percent}% OFF</Text>
+        <Text style={styles.discountSubText}>{item.description}</Text>
+      </View>
+    </TouchableOpacity>
+  ), []);
+
+  const renderRestaurantItem = useCallback(({ item: rest }: { item: Restaurant }) => (
+    <TouchableOpacity
+      style={styles.restaurantCard}
+      onPress={() => navigation.navigate("RestaurantDetail", { restaurantId: rest.id })}
+    >
+      <Image source={{ uri: rest.image_url }} style={styles.restaurantImage} />
+      <View style={styles.restaurantInfo}>
+        <Text style={styles.restaurantName}>{rest.restaurant_name}</Text>
+        <View style={styles.metaRow}>
+          <Icon name="star" size={14} color="#FFD700" />
+          <Text style={styles.rating}>{rest.rating} ({rest.total_reviews})</Text>
+          <Text style={styles.deliveryTime}>{rest.delivery_time}</Text>
+        </View>
+        <Text style={styles.deliveryFee}>
+          Delivery: {rest.delivery_fee === 0 ? "Free" : `$${rest.delivery_fee}`} • Min: $
+          {rest.minimum_order}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  ), [navigation]);
 
   if (loading) {
     return (
@@ -115,7 +163,7 @@ export default function HomeScreen() {
 
       {/* Welcome */}
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Hi {user?.user_metadata?.full_name || "Foodie"} 👋</Text>
+        <Text style={styles.welcomeText}>Hi {userName} 👋</Text>
         <Text style={styles.subtitleText}>What would you like to eat today?</Text>
       </View>
 
@@ -134,15 +182,7 @@ export default function HomeScreen() {
             data={discounts}
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.discountBanner}>
-                <Image source={{ uri: item.image_url }} style={styles.discountImage} />
-                <View style={styles.discountTextContainer}>
-                  <Text style={styles.discountText}>{item.discount_percent}% OFF</Text>
-                  <Text style={styles.discountSubText}>{item.description}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
+            renderItem={renderDiscountItem}
             contentContainerStyle={{ paddingHorizontal: 20 }}
           />
         </View>
@@ -156,15 +196,7 @@ export default function HomeScreen() {
           data={categories}
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.categoryItem}
-              onPress={() => navigation.navigate("CategoryRestaurants", { categoryId: item.id })}
-            >
-              <Image source={{ uri: item.image_url }} style={styles.categoryImage} />
-              <Text style={styles.categoryName}>{item.category_name}</Text>
-            </TouchableOpacity>
-          )}
+          renderItem={renderCategoryItem}
           contentContainerStyle={styles.categoriesList}
         />
       </View>
@@ -172,27 +204,12 @@ export default function HomeScreen() {
       {/* Featured Restaurants */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Featured Restaurants</Text>
-        {featuredRestaurants.map((rest) => (
-          <TouchableOpacity
-            key={rest.id}
-            style={styles.restaurantCard}
-            onPress={() => navigation.navigate("RestaurantDetail", { restaurantId: rest.id })}
-          >
-            <Image source={{ uri: rest.image_url }} style={styles.restaurantImage} />
-            <View style={styles.restaurantInfo}>
-              <Text style={styles.restaurantName}>{rest.restaurant_name}</Text>
-              <View style={styles.metaRow}>
-                <Icon name="star" size={14} color="#FFD700" />
-                <Text style={styles.rating}>{rest.rating} ({rest.total_reviews})</Text>
-                <Text style={styles.deliveryTime}>{rest.delivery_time}</Text>
-              </View>
-              <Text style={styles.deliveryFee}>
-                Delivery: {rest.delivery_fee === 0 ? "Free" : `$${rest.delivery_fee}`} • Min: $
-                {rest.minimum_order}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        <FlatList
+          data={featuredRestaurants}
+          keyExtractor={(item) => item.id}
+          renderItem={renderRestaurantItem}
+          scrollEnabled={false}
+        />
       </View>
     </ScrollView>
   );
